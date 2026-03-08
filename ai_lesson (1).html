@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인공지능 소양교육 – AI와 첫 만남</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Gmarket+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #E8F4FD;
+    --blue: #3B82F6;
+    --blue-dark: #1D4ED8;
+    --teal: #06B6D4;
+    --green: #10B981;
+    --amber: #F59E0B;
+    --red: #EF4444;
+    --purple: #8B5CF6;
+    --pink: #EC4899;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-400: #94A3B8;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --white: #FFFFFF;
+    --shadow: 0 4px 24px rgba(59,130,246,0.10);
+    --shadow-lg: 0 8px 40px rgba(59,130,246,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #F0F7FF;
+    color: var(--gray-800);
+    line-height: 1.7;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #1D4ED8 0%, #06B6D4 50%, #3B82F6 100%);
+    padding: 80px 20px 100px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .hero h1 {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    color: white;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.15);
+  }
+  .hero p {
+    color: rgba(255,255,255,0.88);
+    font-size: 17px;
+    max-width: 560px;
+    margin: 0 auto 36px;
+  }
+  .hero-stats {
+    display: flex; gap: 32px; justify-content: center; flex-wrap: wrap;
+  }
+  .hero-stat {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    padding: 14px 24px;
+    color: white;
+  }
+  .hero-stat strong { display: block; font-size: 22px; font-weight: 700; }
+  .hero-stat span { font-size: 12px; opacity: 0.85; }
+
+  /* ===== NAV ===== */
+  .nav-bar {
+    background: white;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    position: sticky; top: 0; z-index: 100;
+    padding: 0 20px;
+  }
+  .nav-inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  .nav-inner a {
+    display: flex; align-items: center; gap: 6px;
+    padding: 16px 18px;
+    color: var(--gray-600); font-size: 14px; font-weight: 500;
+    text-decoration: none; white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+  }
+  .nav-inner a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ===== MAIN LAYOUT ===== */
+  .container { max-width: 960px; margin: 0 auto; padding: 60px 20px; }
+
+  /* ===== SECTION ===== */
+  .section { margin-bottom: 80px; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: white;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: clamp(22px, 3.5vw, 32px);
+    font-weight: 700; color: var(--gray-800);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .section-sub { color: var(--gray-600); font-size: 15px; margin-bottom: 36px; }
+
+  /* ===== CARD GRID ===== */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .card {
+    background: white; border-radius: 20px;
+    padding: 28px; box-shadow: var(--shadow);
+    border: 1.5px solid var(--gray-200);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .card-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .card-icon.blue { background: #EFF6FF; }
+  .card-icon.teal { background: #ECFEFF; }
+  .card-icon.green { background: #ECFDF5; }
+  .card-icon.amber { background: #FFFBEB; }
+  .card-icon.purple { background: #F5F3FF; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .card p { font-size: 14px; color: var(--gray-600); line-height: 1.65; }
+
+  /* ===== COMPARE TABLE ===== */
+  .compare-wrap {
+    background: white; border-radius: 24px;
+    overflow: hidden; box-shadow: var(--shadow);
+    border: 1.5px solid var(--gray-200);
+  }
+  .compare-table { width: 100%; border-collapse: collapse; }
+  .compare-table th {
+    padding: 18px 24px; text-align: left;
+    font-size: 15px; font-weight: 700;
+  }
+  .compare-table th:first-child { background: var(--gray-50); color: var(--gray-600); }
+  .compare-table th.head-ai { background: var(--blue); color: white; }
+  .compare-table th.head-prog { background: var(--gray-800); color: white; }
+  .compare-table td {
+    padding: 15px 24px; font-size: 14px;
+    border-top: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td { background: var(--gray-50); }
+  .compare-table td:nth-child(2) { color: var(--blue-dark); font-weight: 500; }
+  .compare-table td:nth-child(3) { color: var(--gray-600); }
+  .badge-yes { background: #DCFCE7; color: #166534; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-no { background: #FEE2E2; color: #991B1B; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+  /* ===== TIMELINE ===== */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 3px; background: linear-gradient(180deg, var(--blue) 0%, var(--teal) 100%);
+    border-radius: 4px;
+  }
+  .tl-item { position: relative; margin-bottom: 36px; }
+  .tl-dot {
+    position: absolute; left: -27px; top: 5px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--blue); border: 3px solid white;
+    box-shadow: 0 0 0 3px var(--blue);
+  }
+  .tl-dot.teal { background: var(--teal); box-shadow: 0 0 0 3px var(--teal); }
+  .tl-dot.amber { background: var(--amber); box-shadow: 0 0 0 3px var(--amber); }
+  .tl-dot.red { background: var(--red); box-shadow: 0 0 0 3px var(--red); }
+  .tl-dot.green { background: var(--green); box-shadow: 0 0 0 3px var(--green); }
+  .tl-dot.purple { background: var(--purple); box-shadow: 0 0 0 3px var(--purple); }
+  .tl-year {
+    display: inline-block; background: var(--blue); color: white;
+    padding: 2px 12px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tl-year.teal { background: var(--teal); }
+  .tl-year.amber { background: var(--amber); color: var(--gray-800); }
+  .tl-year.red { background: var(--red); }
+  .tl-year.green { background: var(--green); }
+  .tl-year.purple { background: var(--purple); }
+  .tl-card {
+    background: white; border-radius: 16px; padding: 20px 24px;
+    box-shadow: var(--shadow); border: 1.5px solid var(--gray-200);
+  }
+  .tl-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .tl-card p { font-size: 14px; color: var(--gray-600); }
+  .tl-card .tl-tag {
+    display: inline-block; margin-top: 10px;
+    padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .tl-tag.birth { background: #EFF6FF; color: var(--blue); }
+  .tl-tag.winter { background: #FEF3C7; color: #92400E; }
+  .tl-tag.rebirth { background: #ECFDF5; color: #065F46; }
+  .tl-tag.leap { background: #F5F3FF; color: #4C1D95; }
+
+  /* ===== VIDEO GRID ===== */
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .video-card {
+    background: white; border-radius: 20px;
+    overflow: hidden; box-shadow: var(--shadow);
+    border: 1.5px solid var(--gray-200);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .video-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .video-embed { position: relative; padding-bottom: 56.25%; background: #000; }
+  .video-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .video-info { padding: 18px 20px; }
+  .video-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .video-info p { font-size: 13px; color: var(--gray-600); }
+  .video-tag {
+    display: inline-block; margin-top: 8px;
+    background: #EFF6FF; color: var(--blue);
+    padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+
+  /* ===== IMAGE GRID ===== */
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .img-card {
+    background: white; border-radius: 18px;
+    overflow: hidden; box-shadow: var(--shadow);
+    border: 1.5px solid var(--gray-200);
+  }
+  .img-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  .img-card .img-caption { padding: 14px 16px; }
+  .img-card .img-caption h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .img-card .img-caption p { font-size: 12px; color: var(--gray-600); }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    border-radius: 16px; padding: 22px 26px;
+    display: flex; gap: 16px; align-items: flex-start;
+    margin: 24px 0;
+  }
+  .callout.blue { background: #EFF6FF; border-left: 4px solid var(--blue); }
+  .callout.amber { background: #FFFBEB; border-left: 4px solid var(--amber); }
+  .callout.green { background: #ECFDF5; border-left: 4px solid var(--green); }
+  .callout.red { background: #FEF2F2; border-left: 4px solid var(--red); }
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .callout-text strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .callout-text p { font-size: 14px; color: var(--gray-600); }
+
+  /* ===== AI EXAMPLES LIST ===== */
+  .examples-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .ex-item {
+    background: white; border-radius: 14px;
+    padding: 16px 18px; display: flex; gap: 12px; align-items: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1.5px solid var(--gray-200);
+  }
+  .ex-icon { font-size: 22px; flex-shrink: 0; }
+  .ex-text strong { display: block; font-size: 14px; font-weight: 700; }
+  .ex-text span { font-size: 12px; color: var(--gray-600); }
+  .ex-badge {
+    margin-left: auto; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .ex-badge.ai { background: #DCFCE7; color: #166534; }
+  .ex-badge.not { background: #FEE2E2; color: #991B1B; }
+
+  /* ===== SUMMARY ===== */
+  .summary-box {
+    background: linear-gradient(135deg, #1D4ED8 0%, #06B6D4 100%);
+    border-radius: 28px; padding: 48px 40px; color: white;
+  }
+  .summary-title {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: 26px; font-weight: 700;
+    margin-bottom: 32px; text-align: center;
+  }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .summary-item {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 18px; padding: 22px;
+    backdrop-filter: blur(10px);
+  }
+  .summary-num {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: 36px; font-weight: 700; line-height: 1;
+    margin-bottom: 8px; opacity: 0.6;
+  }
+  .summary-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .summary-item p { font-size: 13px; opacity: 0.85; line-height: 1.6; }
+
+  /* ===== QUIZ ===== */
+  .quiz-section {
+    background: white; border-radius: 28px;
+    padding: 48px 40px; box-shadow: var(--shadow-lg);
+    border: 2px solid var(--gray-200);
+  }
+  .quiz-title {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: 24px; font-weight: 700; text-align: center;
+    margin-bottom: 8px;
+  }
+  .quiz-sub { text-align: center; color: var(--gray-600); font-size: 14px; margin-bottom: 36px; }
+  .quiz-item {
+    background: var(--gray-50); border-radius: 18px;
+    padding: 24px 28px; margin-bottom: 20px;
+    border: 1.5px solid var(--gray-200);
+  }
+  .quiz-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--blue); color: white;
+    font-size: 13px; font-weight: 700; margin-right: 10px;
+  }
+  .quiz-q { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    display: flex; align-items: center; gap: 12px;
+    background: white; border-radius: 12px;
+    padding: 14px 18px; cursor: pointer;
+    border: 2px solid var(--gray-200);
+    transition: all .2s; font-size: 14px;
+    user-select: none;
+  }
+  .quiz-opt:hover { border-color: var(--blue); background: #EFF6FF; }
+  .quiz-opt.correct { border-color: var(--green); background: #ECFDF5; color: #065F46; }
+  .quiz-opt.wrong { border-color: var(--red); background: #FEF2F2; color: #991B1B; }
+  .quiz-opt .opt-key {
+    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+    background: var(--gray-200); color: var(--gray-600);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; transition: all .2s;
+  }
+  .quiz-opt.correct .opt-key { background: var(--green); color: white; }
+  .quiz-opt.wrong .opt-key { background: var(--red); color: white; }
+  .quiz-feedback {
+    display: none; margin-top: 14px;
+    padding: 14px 18px; border-radius: 12px;
+    font-size: 14px; line-height: 1.6;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #ECFDF5; color: #065F46; border-left: 4px solid var(--green); }
+  .quiz-feedback.ng { background: #FEF2F2; color: #991B1B; border-left: 4px solid var(--red); }
+  .quiz-score-area {
+    text-align: center; margin-top: 32px;
+    padding-top: 28px; border-top: 2px solid var(--gray-100);
+  }
+  .score-display {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: 56px; font-weight: 700; color: var(--blue);
+    line-height: 1;
+  }
+  .score-label { font-size: 16px; color: var(--gray-600); margin-top: 4px; }
+  .score-msg { font-size: 18px; font-weight: 700; margin-top: 12px; }
+  .btn-retry {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: white;
+    padding: 12px 28px; border-radius: 12px;
+    border: none; cursor: pointer; font-size: 15px; font-weight: 700;
+    margin-top: 18px; font-family: 'Noto Sans KR', sans-serif;
+    transition: background .2s;
+  }
+  .btn-retry:hover { background: var(--blue-dark); }
+
+  /* ===== AI TYPE CARDS ===== */
+  .ai-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .ai-type-card {
+    border-radius: 20px; padding: 26px 22px; text-align: center;
+    border: 2px solid;
+  }
+  .ai-type-card.current { background: #EFF6FF; border-color: var(--blue); }
+  .ai-type-card.future { background: #F5F3FF; border-color: var(--purple); }
+  .ai-type-card.sf { background: #FFF7ED; border-color: var(--amber); }
+  .ai-type-card .type-emoji { font-size: 40px; margin-bottom: 12px; }
+  .ai-type-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .ai-type-card p { font-size: 13px; color: var(--gray-600); line-height: 1.6; }
+  .ai-type-card .type-badge {
+    display: inline-block; margin-top: 12px;
+    padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+  .current .type-badge { background: var(--blue); color: white; }
+  .future .type-badge { background: var(--purple); color: white; }
+  .sf .type-badge { background: var(--amber); color: white; }
+
+  /* ===== ERROR BOX ===== */
+  .error-list { display: flex; flex-direction: column; gap: 14px; }
+  .error-item {
+    background: white; border-radius: 16px;
+    padding: 20px 24px; display: flex; gap: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-left: 4px solid var(--red);
+  }
+  .error-icon { font-size: 26px; flex-shrink: 0; }
+  .error-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--red); }
+  .error-text p { font-size: 14px; color: var(--gray-600); line-height: 1.6; }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:640px){
+    .ai-type-grid { grid-template-columns: 1fr; }
+    .examples-grid { grid-template-columns: 1fr; }
+    .quiz-section { padding: 28px 20px; }
+    .summary-box { padding: 32px 20px; }
+    .compare-table th, .compare-table td { padding: 12px 14px; font-size: 13px; }
+  }
+
+  /* ===== SCROLL ANIMATION ===== */
+  .fade-in {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🤖 고등학교 1학년 · AI 소양교육</div>
+  <h1>인공지능과<br>첫 만남</h1>
+  <p>AI가 무엇인지, 어떻게 발전해 왔는지,<br>그리고 오늘 내 생활 속 어디에 있는지 알아봅니다.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>5개</strong><span>학습 챕터</span></div>
+    <div class="hero-stat"><strong>4개</strong><span>핵심 영상</span></div>
+    <div class="hero-stat"><strong>5개</strong><span>마무리 퀴즈</span></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <a href="#what-is-ai">🧠 AI란?</a>
+    <a href="#ai-vs-prog">⚙️ AI vs 프로그램</a>
+    <a href="#ai-history">📅 AI 역사</a>
+    <a href="#ai-daily">🌏 생활 속 AI</a>
+    <a href="#summary">📌 핵심 정리</a>
+    <a href="#quiz">✏️ 퀴즈</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ===== SECTION 1: WHAT IS AI ===== -->
+  <section class="section fade-in" id="what-is-ai">
+    <div class="section-label">CHAPTER 01 · 02</div>
+    <h2 class="section-title">인공지능(AI)이란 무엇일까?</h2>
+    <p class="section-sub">사람이 만들어낸 지능 — AI의 정의를 내 말로 이해해 봐요.</p>
+
+    <div class="callout blue">
+      <div class="callout-icon">💡</div>
+      <div class="callout-text">
+        <strong>핵심 정의</strong>
+        <p><strong>인공지능(Artificial Intelligence, AI)</strong>이란 사람이 하는 지적 활동(학습·추론·판단·인식)을 컴퓨터가 흉내 낼 수 있도록 만든 기술입니다. 엄청난 양의 데이터를 학습해 패턴을 스스로 파악하고 판단합니다.</p>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon blue">🔢</div>
+        <h3>인공(人工)</h3>
+        <p>사람이 만들었다는 뜻이에요. 자연적으로 생겨난 것이 아니라 인간이 의도적으로 설계하고 제작한 것입니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon teal">🧠</div>
+        <h3>지능(知能)</h3>
+        <p>배우고, 생각하고, 판단하는 능력입니다. AI는 이 능력을 컴퓨터가 가질 수 있도록 구현하려는 기술이에요.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">📊</div>
+        <h3>데이터 학습</h3>
+        <p>AI는 수천만 개의 데이터를 보고 패턴을 스스로 찾아요. 아기가 반복 경험으로 개념을 익히는 것과 같은 원리입니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon amber">🎯</div>
+        <h3>스스로 판단</h3>
+        <p>규칙이 없어도 새로운 상황에서 배운 패턴을 바탕으로 적절한 답을 내놓을 수 있어요. 이것이 일반 프로그램과의 차이입니다.</p>
+      </div>
+    </div>
+
+    <div class="callout amber" style="margin-top:24px">
+      <div class="callout-icon">⭐</div>
+      <div class="callout-text">
+        <strong>딱 한 줄 핵심!</strong>
+        <p>일반 프로그램은 <b>규칙을 사람이 만들고</b>, AI는 <b>규칙을 스스로 배워요</b>. 이 차이가 AI를 특별하게 만듭니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2: AI vs PROGRAM ===== -->
+  <section class="section fade-in" id="ai-vs-prog">
+    <div class="section-label">CHAPTER 02 · 핵심 개념</div>
+    <h2 class="section-title">AI와 일반 프로그램, 뭐가 다를까?</h2>
+    <p class="section-sub">계산기와 AI 스피커의 차이를 통해 핵심을 이해해요.</p>
+
+    <div class="compare-wrap" style="margin-bottom:28px">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>비교 항목</th>
+            <th class="head-ai">🤖 인공지능 (AI)</th>
+            <th class="head-prog">💻 일반 프로그램</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>규칙 생성</b></td>
+            <td>데이터로 <b>스스로</b> 패턴 학습</td>
+            <td>개발자가 <b>직접</b> 규칙 입력</td>
+          </tr>
+          <tr>
+            <td><b>새로운 상황</b></td>
+            <td><span class="badge-yes">✔ 유연하게 대응</span></td>
+            <td><span class="badge-no">✘ 작동 불가</span></td>
+          </tr>
+          <tr>
+            <td><b>학습 능력</b></td>
+            <td><span class="badge-yes">✔ 데이터 많을수록 향상</span></td>
+            <td><span class="badge-no">✘ 코드 수정 없이는 변화 없음</span></td>
+          </tr>
+          <tr>
+            <td><b>예시</b></td>
+            <td>AI 스피커, 번역기, 얼굴인식</td>
+            <td>계산기, 알람, 자동문 센서</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- AI Type Cards -->
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:18px">AI의 3가지 수준</h3>
+    <div class="ai-type-grid">
+      <div class="ai-type-card current">
+        <div class="type-emoji">🎯</div>
+        <h4>좁은 AI (Narrow AI)</h4>
+        <p>하나의 특정 작업만 뛰어나게 수행해요. 바둑 AI는 바둑만, 번역 AI는 번역만 잘합니다.</p>
+        <span class="type-badge">✅ 현재 존재</span>
+      </div>
+      <div class="ai-type-card future">
+        <div class="type-emoji">🔬</div>
+        <h4>일반 AI (General AI)</h4>
+        <p>사람처럼 다양한 상황에서 스스로 생각하고 판단하는 AI. 아직 구현되지 않았습니다.</p>
+        <span class="type-badge">🔬 연구 중</span>
+      </div>
+      <div class="ai-type-card sf">
+        <div class="type-emoji">🌌</div>
+        <h4>초지능 AI (Super AI)</h4>
+        <p>인간 능력을 훨씬 뛰어넘는 AI. SF 영화에 등장하는 개념으로 이론적 아이디어입니다.</p>
+        <span class="type-badge">🌌 이론적 개념</span>
+      </div>
+    </div>
+
+    <div class="callout green" style="margin-top:24px">
+      <div class="callout-icon">😊</div>
+      <div class="callout-text">
+        <strong>안심해도 괜찮아요!</strong>
+        <p>지금 우리 주변의 ChatGPT, 시리, 클로바는 모두 <b>좁은 AI</b>입니다. 특정 분야에서 뛰어난 도구일 뿐, 세상을 지배하는 영화 속 AI와는 거리가 멀어요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3: HISTORY ===== -->
+  <section class="section fade-in" id="ai-history">
+    <div class="section-label">CHAPTER 03 · AI 역사</div>
+    <h2 class="section-title">AI는 어떻게 여기까지 왔을까?</h2>
+    <p class="section-sub">탄생 → 겨울 → 부활 → 도약, 70년의 여정을 따라가 봐요.</p>
+
+    <!-- Video Grid -->
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <span style="background:#EF4444;color:white;padding:4px 12px;border-radius:20px;font-size:13px">▶ 참고 영상</span>
+      역사를 이해하는 데 도움이 되는 영상들이에요
+    </h3>
+    <div class="video-grid" style="margin-bottom:44px">
+      <div class="video-card">
+        <div class="video-embed">
+          <iframe src="https://www.youtube.com/embed/WXuK6gekU1Y" 
+            title="AlphaGo - The Movie | Full award-winning documentary"
+            allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="video-info">
+          <h4>알파고 다큐멘터리</h4>
+          <p>2016년 이세돌 9단 vs 알파고 대국의 전 과정을 담은 공식 다큐멘터리.</p>
+          <span class="video-tag">🏆 AI 부활의 상징</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-embed">
+          <iframe src="https://www.youtube.com/embed/a0_lo_GDcFw"
+            title="A Brief History of Artificial Intelligence"
+            allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="video-info">
+          <h4>인공지능의 역사 (영문)</h4>
+          <p>1950년대부터 현재까지 AI 발전사를 10분 만에 훑어보는 영상.</p>
+          <span class="video-tag">📅 역사 개요</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-embed">
+          <iframe src="https://www.youtube.com/embed/KSXHDnBFoqE"
+            title="Alan Turing - Celebrating the life of a genius"
+            allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="video-info">
+          <h4>앨런 튜링 이야기</h4>
+          <p>AI의 아버지, 앨런 튜링의 삶과 튜링 테스트 개념 소개.</p>
+          <span class="video-tag">🌱 AI의 씨앗</span>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-embed">
+          <iframe src="https://www.youtube.com/embed/aygSMgK3BEM"
+            title="Deep Blue vs Kasparov"
+            allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="video-info">
+          <h4>딥블루 vs 카스파로프 (1997)</h4>
+          <p>IBM의 체스 AI '딥블루'가 세계 챔피언을 꺾은 역사적 순간.</p>
+          <span class="video-tag">♟️ AI의 도전</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:22px">📅 AI 역사 타임라인</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">1950</div>
+        <div class="tl-card">
+          <h4>🌱 앨런 튜링 – 튜링 테스트 제안</h4>
+          <p>"기계가 생각할 수 있는가?" 라는 질문을 던지며, 기계가 사람처럼 보이면 지능이 있다고 볼 수 있다는 개념을 제안했습니다.</p>
+          <span class="tl-tag birth">탄생기</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">1956</div>
+        <div class="tl-card">
+          <h4>🎓 다트머스 회의 – "인공지능" 탄생</h4>
+          <p>존 매카시가 Artificial Intelligence(인공지능)라는 단어를 공식 사용. AI 연구의 출발점으로 꼽힙니다. "인간의 모든 지능적 행동을 기계로 구현할 수 있다"는 꿈이 공식 선언됐습니다.</p>
+          <span class="tl-tag birth">탄생기</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-year red">1970년대</div>
+        <div class="tl-card">
+          <h4>❄️ 1차 AI 겨울 – 실망과 투자 삭감</h4>
+          <p>기계 번역, 자동 추론 등의 약속이 실현되지 못하면서 정부와 기업의 투자가 끊겼습니다. "10년 안에 완성"의 약속들이 모두 빈말이 됐어요.</p>
+          <span class="tl-tag winter">AI 겨울</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot amber"></div>
+        <div class="tl-year amber">1980년대~1990년대</div>
+        <div class="tl-card">
+          <h4>❄️ 2차 AI 겨울 – 전문가 시스템의 한계</h4>
+          <p>"만약 A이면 B다" 규칙을 수천 개 넣어 만든 전문가 시스템이 한계를 드러냈어요. 유지보수가 너무 어렵고 새 상황에 대응하지 못했습니다.</p>
+          <span class="tl-tag winter">AI 겨울</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot teal"></div>
+        <div class="tl-year teal">2006~2012</div>
+        <div class="tl-card">
+          <h4>🌸 딥러닝 혁명 – AI의 부활</h4>
+          <p>제프리 힌턴이 딥러닝 이론을 정립하고, 2012년 AlexNet이 이미지 인식 대회에서 압도적 성능으로 우승하며 딥러닝 시대가 열렸습니다. 빅데이터 + GPU + 딥러닝 3박자가 맞아 떨어진 시기입니다.</p>
+          <span class="tl-tag rebirth">AI 부활</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-year green">2016</div>
+        <div class="tl-card">
+          <h4>♟️ 알파고 vs 이세돌 – 세상을 놀라게 하다</h4>
+          <p>구글 딥마인드의 바둑 AI 알파고가 이세돌 9단에게 4승 1패로 승리. 전문가들이 "10년은 더 걸릴 것"이라던 일이 일어났습니다. 강화학습(스스로 대국을 반복하며 학습)으로 인류 최고를 넘어선 사건.</p>
+          <span class="tl-tag leap">도약</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot purple"></div>
+        <div class="tl-year purple">2022~현재</div>
+        <div class="tl-card">
+          <h4>🚀 ChatGPT 등장 – 일상 속 AI 시대</h4>
+          <p>오픈AI의 ChatGPT가 출시되며 누구나 생성형 AI를 경험할 수 있게 됐습니다. 교육·의료·예술·법률 등 모든 분야에 AI가 빠르게 들어오고 있습니다.</p>
+          <span class="tl-tag leap">도약</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reference Images -->
+    <h3 style="font-size:17px;font-weight:700;margin:36px 0 16px;display:flex;align-items:center;gap:8px">
+      <span style="background:#8B5CF6;color:white;padding:4px 12px;border-radius:20px;font-size:13px">🖼 참고 이미지</span>
+      역사 속 주요 장면들
+    </h3>
+    <div class="img-grid">
+      <div class="img-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_Aged_16.jpg" 
+             referrerpolicy="no-referrer"
+             onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Alan+Turing';"
+             alt="앨런 튜링" onerror="this.src='https://placehold.co/400x200/EFF6FF/3B82F6?text=Alan+Turing'">
+        <div class="img-caption">
+          <h4>앨런 튜링 (1912–1954)</h4>
+          <p>AI의 아버지. 튜링 테스트로 "기계 지능"의 기준을 제시했습니다.</p>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Lee_Sedol_vs_AlphaGo%2C_Google_DeepMind_Challenge_Match.jpg" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://placehold.co/400x300?text=AlphaGo+vs+Lee+Sedol';" 
+             alt="이세돌 vs 알파고" onerror="this.src='https://placehold.co/400x200/ECFDF5/10B981?text=AlphaGo+vs+Lee+Sedol'">
+        <div class="img-caption">
+          <h4>알파고 vs 이세돌 (2016)</h4>
+          <p>전 세계가 주목한 역사적 대국. AI의 새 시대를 열었습니다.</p>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Deep_Blue.jpg" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://placehold.co/400x300?text=Deep+Blue';"
+             alt="Deep Blue" onerror="this.src='https://placehold.co/400x200/F5F3FF/8B5CF6?text=IBM+Deep+Blue'">
+        <div class="img-caption">
+          <h4>IBM 딥블루 (1997)</h4>
+          <p>체스 세계 챔피언을 처음 이긴 AI. 규칙 기반 AI의 정점이었습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout red" style="margin-top:28px">
+      <div class="callout-icon">❄️</div>
+      <div class="callout-text">
+        <strong>AI 겨울은 실패가 아니에요!</strong>
+        <p>겨울을 겪으며 "무엇이 왜 안 됐는지"를 배웠어요. 그 교훈이 쌓여 딥러닝 혁명이 가능했습니다. 지금 AI의 봄은 오랜 겨울 끝에 온 것입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 4: DAILY LIFE AI ===== -->
+  <section class="section fade-in" id="ai-daily">
+    <div class="section-label">CHAPTER 04 · 생활 속 AI</div>
+    <h2 class="section-title">내 하루 속 AI를 찾아봐요</h2>
+    <p class="section-sub">AI를 사용한 것과 아닌 것, 핵심 질문 하나로 구분할 수 있어요.</p>
+
+    <div class="callout blue">
+      <div class="callout-icon">🔑</div>
+      <div class="callout-text">
+        <strong>AI 구분 핵심 질문</strong>
+        <p>"이 기술이 <b>스스로 데이터를 분석하고 판단</b>하나요?" → YES면 AI, NO면 일반 프로그램</p>
+      </div>
+    </div>
+
+    <div class="examples-grid" style="margin-top:24px">
+      <div class="ex-item">
+        <div class="ex-icon">📺</div>
+        <div class="ex-text"><strong>유튜브 추천 알고리즘</strong><span>시청 패턴 분석 → 맞춤 추천</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🧮</div>
+        <div class="ex-text"><strong>계산기 앱</strong><span>정해진 계산 규칙만 수행</span></div>
+        <span class="ex-badge not">AI ✘</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🔍</div>
+        <div class="ex-text"><strong>네이버 스마트렌즈</strong><span>이미지 인식 → 검색</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">⏰</div>
+        <div class="ex-text"><strong>스마트폰 알람</strong><span>정해진 시간에 울리는 타이머</span></div>
+        <span class="ex-badge not">AI ✘</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🚗</div>
+        <div class="ex-text"><strong>테슬라 자율주행</strong><span>실시간 도로 데이터 판단</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🌡️</div>
+        <div class="ex-text"><strong>냉장고 온도 조절</strong><span>설정값 유지 규칙만 수행</span></div>
+        <span class="ex-badge not">AI ✘</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">📸</div>
+        <div class="ex-text"><strong>구글 포토 인물 분류</strong><span>얼굴 학습 → 자동 분류</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🚪</div>
+        <div class="ex-text"><strong>자동문 (적외선 센서)</strong><span>사람 감지 시 열린다는 단순 규칙</span></div>
+        <span class="ex-badge not">AI ✘</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">💬</div>
+        <div class="ex-text"><strong>챗봇 고객 상담</strong><span>언어 패턴 학습 → 맞춤 응답</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+      <div class="ex-item">
+        <div class="ex-icon">🗑️</div>
+        <div class="ex-text"><strong>스팸 문자 필터</strong><span>수백만 스팸 패턴 학습</span></div>
+        <span class="ex-badge ai">AI ✔</span>
+      </div>
+    </div>
+
+    <!-- Error Section -->
+    <h3 style="font-size:18px;font-weight:700;margin:36px 0 16px">⚠️ 자주 하는 실수 4가지</h3>
+    <div class="error-list">
+      <div class="error-item">
+        <div class="error-icon">⚡</div>
+        <div class="error-text">
+          <strong>실수 1: "자동화 = 인공지능"이라고 생각하기</strong>
+          <p>자동 판매기, 에스컬레이터는 <b>정해진 규칙대로 자동 실행</b>되는 것입니다. AI는 데이터로 <b>스스로 규칙을 만들고 판단</b>해요. 이 둘은 근본적으로 다릅니다.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon">🏆</div>
+        <div class="error-text">
+          <strong>실수 2: "AI는 무조건 사람보다 똑똑하다"</strong>
+          <p>바둑 AI는 바둑만 잘해요. "오늘 점심 뭐 먹을까?"나 "친구를 어떻게 위로할까?"는 전혀 모릅니다. AI는 <b>특정 영역에서만</b> 뛰어난 좁은 전문가입니다.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon">✅</div>
+        <div class="error-text">
+          <strong>실수 3: "AI는 항상 정답을 말한다"</strong>
+          <p>AI는 학습한 데이터의 패턴을 따를 뿐이에요. 데이터가 편향되거나 새로운 상황이 오면 틀릴 수 있습니다. AI의 답은 <b>참고</b>하되 항상 <b>검증</b>하세요!</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon">❤️</div>
+        <div class="error-text">
+          <strong>실수 4: "AI는 의식이 있고 감정을 느낀다"</strong>
+          <p>"저는 기뻐요"라고 말해도 이건 언어 패턴에서 나오는 <b>텍스트 생성</b>일 뿐이에요. 지금의 AI는 의식이 없고, 사람처럼 보이도록 훈련된 것입니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SUMMARY ===== -->
+  <section class="section fade-in" id="summary">
+    <div class="summary-box">
+      <h2 class="summary-title">📌 이 단원의 핵심 정리</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-num">01</div>
+          <h4>AI의 정의</h4>
+          <p>사람의 지적 활동(학습·판단·인식)을 컴퓨터가 흉내 낼 수 있도록 만든 기술. 데이터를 보고 스스로 패턴을 찾아요.</p>
+        </div>
+        <div class="summary-item">
+          <div class="summary-num">02</div>
+          <h4>AI vs 일반 프로그램</h4>
+          <p>일반 프로그램은 사람이 규칙을 만들고, AI는 데이터로 스스로 규칙을 학습해요. 이 차이가 핵심입니다.</p>
+        </div>
+        <div class="summary-item">
+          <div class="summary-num">03</div>
+          <h4>AI 역사의 흐름</h4>
+          <p>1956년 탄생 → AI 겨울(1970~1990) → 딥러닝 혁명(2012) → 알파고(2016) → ChatGPT(2022)</p>
+        </div>
+        <div class="summary-item">
+          <div class="summary-num">04</div>
+          <h4>AI 부활의 3조건</h4>
+          <p>빅데이터 + 컴퓨팅 파워(GPU) + 딥러닝 알고리즘. 이 3가지가 맞아 떨어지며 AI의 봄이 왔습니다.</p>
+        </div>
+        <div class="summary-item">
+          <div class="summary-num">05</div>
+          <h4>현재 AI = 좁은 AI</h4>
+          <p>우리 주변의 모든 AI는 좁은 AI(Narrow AI)입니다. 특정 분야에서만 뛰어난 도구이며, 의식이나 감정은 없습니다.</p>
+        </div>
+        <div class="summary-item">
+          <div class="summary-num">06</div>
+          <h4>AI 구분 기준</h4>
+          <p>"스스로 데이터를 분석하고 판단하나요?" → YES = AI, NO = 일반 프로그램. 이 질문 하나로 구분할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== QUIZ ===== -->
+  <section class="section fade-in" id="quiz">
+    <div class="quiz-section">
+      <h2 class="quiz-title">✏️ 마무리 퀴즈</h2>
+      <p class="quiz-sub">배운 내용을 확인해 봐요! 문항을 클릭해서 정답을 선택하세요.</p>
+
+      <!-- Q1 -->
+      <div class="quiz-item" id="q1">
+        <p class="quiz-q"><span class="quiz-num">1</span>인공지능과 일반 프로그램의 가장 큰 차이는 무엇인가요?</p>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,1,'a')"><span class="opt-key">A</span> 인공지능이 더 빠른 CPU를 사용한다</div>
+          <div class="quiz-opt" onclick="answer(this,1,'b')"><span class="opt-key">B</span> 인공지능은 데이터를 통해 스스로 규칙을 학습한다</div>
+          <div class="quiz-opt" onclick="answer(this,1,'c')"><span class="opt-key">C</span> 인공지능은 항상 인터넷이 연결되어야 작동한다</div>
+          <div class="quiz-opt" onclick="answer(this,1,'d')"><span class="opt-key">D</span> 일반 프로그램은 코드로 만들어지지 않는다</div>
+        </div>
+        <div class="quiz-feedback" id="fb1"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-item" id="q2">
+        <p class="quiz-q"><span class="quiz-num">2</span>AI의 역사에서 "AI 겨울"이란 무엇인가요?</p>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,2,'a')"><span class="opt-key">A</span> AI 기술이 겨울에만 작동하는 현상</div>
+          <div class="quiz-opt" onclick="answer(this,2,'b')"><span class="opt-key">B</span> AI 로봇이 추위를 인식하는 기술</div>
+          <div class="quiz-opt" onclick="answer(this,2,'c')"><span class="opt-key">C</span> AI에 대한 기대가 현실을 못 따라가 연구비와 관심이 급감한 시기</div>
+          <div class="quiz-opt" onclick="answer(this,2,'d')"><span class="opt-key">D</span> 데이터가 너무 적어서 AI가 고장나는 현상</div>
+        </div>
+        <div class="quiz-feedback" id="fb2"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-item" id="q3">
+        <p class="quiz-q"><span class="quiz-num">3</span>다음 중 AI 기술이 적용된 것은 무엇인가요?</p>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,3,'a')"><span class="opt-key">A</span> 엘리베이터 층수 버튼</div>
+          <div class="quiz-opt" onclick="answer(this,3,'b')"><span class="opt-key">B</span> 유튜브 영상 추천 알고리즘</div>
+          <div class="quiz-opt" onclick="answer(this,3,'c')"><span class="opt-key">C</span> 스마트폰 알람 시계</div>
+          <div class="quiz-opt" onclick="answer(this,3,'d')"><span class="opt-key">D</span> 에어컨 예약 타이머</div>
+        </div>
+        <div class="quiz-feedback" id="fb3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-item" id="q4">
+        <p class="quiz-q"><span class="quiz-num">4</span>2016년 알파고가 역사적으로 중요한 이유는 무엇인가요?</p>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,4,'a')"><span class="opt-key">A</span> 최초로 체스 챔피언을 이긴 AI이기 때문에</div>
+          <div class="quiz-opt" onclick="answer(this,4,'b')"><span class="opt-key">B</span> 바둑이라는 매우 복잡한 게임에서 세계 최고 기사를 이기며, 스스로 학습하는 AI의 가능성을 전 세계에 보여줬기 때문에</div>
+          <div class="quiz-opt" onclick="answer(this,4,'c')"><span class="opt-key">C</span> 처음으로 사람과 대화한 AI이기 때문에</div>
+          <div class="quiz-opt" onclick="answer(this,4,'d')"><span class="opt-key">D</span> 인공지능이라는 단어를 처음 만들었기 때문에</div>
+        </div>
+        <div class="quiz-feedback" id="fb4"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-item" id="q5">
+        <p class="quiz-q"><span class="quiz-num">5</span>현재 우리가 사용하는 AI (ChatGPT, 시리, 유튜브 추천 등)에 대한 설명으로 가장 올바른 것은?</p>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,5,'a')"><span class="opt-key">A</span> 모든 분야에서 사람보다 뛰어난 일반 AI이다</div>
+          <div class="quiz-opt" onclick="answer(this,5,'b')"><span class="opt-key">B</span> 의식과 감정을 가지고 있어 사람처럼 느낀다</div>
+          <div class="quiz-opt" onclick="answer(this,5,'c')"><span class="opt-key">C</span> 특정 분야에서만 뛰어난 좁은 AI이며, 의식이나 감정은 없다</div>
+          <div class="quiz-opt" onclick="answer(this,5,'d')"><span class="opt-key">D</span> 항상 정확한 정답을 제공하므로 비판적 검토가 필요없다</div>
+        </div>
+        <div class="quiz-feedback" id="fb5"></div>
+      </div>
+
+      <div class="quiz-score-area" id="scoreArea" style="display:none">
+        <div class="score-display" id="scoreNum">0/5</div>
+        <div class="score-label">정답 수</div>
+        <div class="score-msg" id="scoreMsg"></div>
+        <br>
+        <button class="btn-retry" onclick="resetQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<div style="background:var(--gray-800);color:white;text-align:center;padding:32px 20px;font-size:14px;opacity:0.8">
+  고등학교 1학년을 위한 인공지능 소양교육 학습서 · Part 1
+</div>
+
+<script>
+const answers = { 1:'b', 2:'c', 3:'b', 4:'b', 5:'c' };
+const feedbacks = {
+  1: {
+    b: "✅ 정답! 인공지능은 수많은 데이터를 통해 스스로 패턴을 찾고 규칙을 만드는 것이 핵심입니다. 일반 프로그램은 개발자가 모든 규칙을 직접 입력해야 합니다.",
+    wrong: "❌ 틀렸습니다. 정답은 B예요. 인공지능의 핵심은 '데이터로 스스로 규칙을 학습한다'는 점이에요. CPU 속도나 인터넷 연결은 부수적 요소입니다."
+  },
+  2: {
+    c: "✅ 정답! AI 겨울은 1970년대와 1980년대 후반 두 차례 찾아온 침체기입니다. AI에 대한 기대가 너무 컸지만 현실이 따라가지 못해 투자와 관심이 끊겼어요.",
+    wrong: "❌ 틀렸습니다. 정답은 C예요. AI 겨울은 계절과는 무관하고, 기대와 현실의 괴리로 인해 AI 연구가 침체된 시기를 비유적으로 부르는 말입니다."
+  },
+  3: {
+    b: "✅ 정답! 유튜브 추천 알고리즘은 내 시청 기록과 수많은 사용자 데이터를 분석해 '내가 좋아할 만한 영상'을 예측합니다. 전형적인 AI 기술이에요.",
+    wrong: "❌ 틀렸습니다. 정답은 B예요. 엘리베이터, 알람, 에어컨 타이머는 모두 정해진 규칙대로만 작동하는 일반 프로그램/자동화 장치입니다."
+  },
+  4: {
+    b: "✅ 정답! 알파고는 규칙을 입력받은 게 아니라 강화학습으로 스스로 수백만 번 대국하며 학습했어요. 전문가들이 10년 이상 걸릴 것이라던 바둑에서 세계 최고를 이기며 AI의 가능성을 전 세계에 증명했습니다.",
+    wrong: "❌ 틀렸습니다. 정답은 B예요. 체스를 이긴 첫 AI는 1997년 IBM의 딥블루입니다. 알파고의 의미는 '규칙 기반'이 아닌 '스스로 학습'하는 방식으로 매우 복잡한 게임을 정복했다는 점에 있습니다."
+  },
+  5: {
+    c: "✅ 정답! 지금 우리가 사용하는 AI는 모두 좁은 AI(Narrow AI)입니다. 특정 분야에서 뛰어날 뿐, 의식·감정이 없고 항상 정확하지도 않아요. AI의 답은 항상 비판적으로 검토해야 합니다.",
+    wrong: "❌ 틀렸습니다. 정답은 C예요. 현재 AI는 특정 분야 전문화된 좁은 AI이며, 의식과 감정이 없고 때로는 틀린 답을 줄 수 있습니다. AI를 맹신하는 것은 위험합니다."
+  }
+};
+
+let answered = {};
+let correctCount = 0;
+
+function answer(el, qnum, choice) {
+  if (answered[qnum]) return;
+  answered[qnum] = choice;
+
+  const qEl = document.getElementById('q' + qnum);
+  const opts = qEl.querySelectorAll('.quiz-opt');
+  const fb = document.getElementById('fb' + qnum);
+  const correct = answers[qnum];
+
+  opts.forEach(opt => {
+    opt.style.pointerEvents = 'none';
+    const key = opt.getAttribute('onclick').match(/'([a-d])'\)/)[1];
+    if (key === correct) opt.classList.add('correct');
+    else if (key === choice && choice !== correct) opt.classList.add('wrong');
+  });
+
+  if (choice === correct) {
+    correctCount++;
+    fb.textContent = feedbacks[qnum][choice];
+    fb.className = 'quiz-feedback show ok';
+  } else {
+    fb.textContent = feedbacks[qnum]['wrong'];
+    fb.className = 'quiz-feedback show ng';
+  }
+
+  if (Object.keys(answered).length === 5) {
+    setTimeout(showScore, 400);
+  }
+}
+
+function showScore() {
+  const area = document.getElementById('scoreArea');
+  const num = document.getElementById('scoreNum');
+  const msg = document.getElementById('scoreMsg');
+  area.style.display = 'block';
+  num.textContent = correctCount + '/5';
+
+  if (correctCount === 5) { msg.textContent = '🎉 완벽해요! AI 기초 완전 정복!'; num.style.color = '#10B981'; }
+  else if (correctCount >= 3) { msg.textContent = '👍 잘했어요! 틀린 문제를 다시 한 번 확인해봐요.'; num.style.color = '#3B82F6'; }
+  else { msg.textContent = '💪 조금 더 공부해봐요. 다시 도전할 수 있어요!'; num.style.color = '#F59E0B'; }
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetQuiz() {
+  answered = {}; correctCount = 0;
+  for (let i = 1; i <= 5; i++) {
+    const qEl = document.getElementById('q' + i);
+    qEl.querySelectorAll('.quiz-opt').forEach(o => {
+      o.classList.remove('correct','wrong');
+      o.style.pointerEvents = '';
+    });
+    const fb = document.getElementById('fb' + i);
+    fb.className = 'quiz-feedback';
+    fb.textContent = '';
+  }
+  document.getElementById('scoreArea').style.display = 'none';
+  document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Scroll animation
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
