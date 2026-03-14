@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI는 어떻게 배울까? – 데이터와 학습의 비밀</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── 기본 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #f9fafb;
+  color: #1a202c;
+  line-height: 1.8;
+  font-size: 15.5px;
+}
+
+/* ── 상단 네비 ── */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex; align-items: center; flex-wrap: nowrap;
+  gap: 0.25rem; padding: 0 1.25rem;
+  height: 52px; overflow-x: auto;
+}
+.top-nav::-webkit-scrollbar { height: 0; }
+.top-nav .site-name {
+  font-weight: 900; font-size: 0.82rem; color: #4f46e5;
+  white-space: nowrap; margin-right: 0.75rem; flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+.top-nav a {
+  white-space: nowrap; flex-shrink: 0;
+  color: #6b7280; text-decoration: none;
+  font-size: 0.8rem; padding: 0.35rem 0.7rem;
+  border-radius: 6px; transition: all 0.15s;
+}
+.top-nav a:hover { background: #ede9fe; color: #4f46e5; }
+
+/* ── 히어로 ── */
+.hero {
+  background: linear-gradient(135deg, #312e81 0%, #4f46e5 55%, #7c3aed 100%);
+  color: white;
+  padding: 5rem 1.5rem 4.5rem;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  font-size: 0.78rem; letter-spacing: 0.5px;
+  padding: 0.35rem 1rem; border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 900; line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.hero-desc {
+  font-size: 1rem; opacity: 0.85;
+  max-width: 540px; margin: 0 auto 2.5rem;
+}
+.hero-stats {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 1.5rem; margin-bottom: 2.5rem;
+}
+.hero-stat {
+  text-align: center;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px; padding: 0.75rem 1.5rem;
+}
+.hero-stat strong { display: block; font-size: 1.6rem; font-weight: 900; line-height: 1; }
+.hero-stat span { font-size: 0.78rem; opacity: 0.8; }
+.hero-nav {
+  display: flex; flex-wrap: wrap; gap: 0.6rem;
+  justify-content: center;
+}
+.hero-nav a {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: white; text-decoration: none;
+  font-size: 0.83rem; font-weight: 500;
+  padding: 0.5rem 1.1rem; border-radius: 8px;
+  transition: background 0.2s;
+}
+.hero-nav a:hover { background: rgba(255,255,255,0.28); }
+
+/* ── 본문 컨테이너 ── */
+.container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+/* ── 챕터 헤더 ── */
+.ch-wrap {
+  padding-top: 4rem; padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 2.25rem;
+}
+.ch-label {
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.ch-label .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.ch-wrap h2 {
+  font-size: clamp(1.45rem, 3.5vw, 2rem);
+  font-weight: 900; line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+.ch-wrap .ch-sub {
+  color: #6b7280; font-size: 0.92rem;
+}
+
+/* 챕터별 accent 색상 */
+.acc-indigo { color: #4f46e5; }
+.acc-sky    { color: #0ea5e9; }
+.acc-violet { color: #7c3aed; }
+.acc-teal   { color: #0d9488; }
+
+/* ── 핵심 정의 박스 ── */
+.def-box {
+  display: flex; gap: 1.25rem; align-items: flex-start;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 14px; padding: 1.5rem;
+  margin: 1.75rem 0;
+}
+.def-box .icon { font-size: 1.8rem; flex-shrink: 0; line-height: 1; margin-top: 0.1rem; }
+.def-box .def-title { font-weight: 700; font-size: 0.85rem; color: #4f46e5; margin-bottom: 0.4rem; }
+.def-box p { font-size: 0.9rem; color: #374151; }
+
+/* ── 카드 그리드 ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem; margin: 1.75rem 0;
+}
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px; padding: 1.4rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.card .c-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+.card p { font-size: 0.83rem; color: #6b7280; }
+.card .badge {
+  display: inline-block; margin-top: 0.75rem;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 0.2rem 0.6rem; border-radius: 999px;
+}
+.badge-green  { background: #dcfce7; color: #16a34a; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.badge-orange { background: #ffedd5; color: #c2410c; }
+.badge-violet { background: #ede9fe; color: #6d28d9; }
+
+/* ── 콜아웃 (⭐ 한 줄 핵심) ── */
+.callout {
+  display: flex; gap: 1rem; align-items: flex-start;
+  border-radius: 14px; padding: 1.25rem 1.4rem;
+  margin: 1.75rem 0;
+}
+.callout .c-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1.2; }
+.callout .c-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.3rem; }
+.callout p { font-size: 0.88rem; }
+.callout.yellow { background: #fffbeb; border: 1px solid #fde68a; }
+.callout.yellow .c-title { color: #92400e; }
+.callout.green  { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.callout.green .c-title  { color: #14532d; }
+.callout.blue   { background: #eff6ff; border: 1px solid #bfdbfe; }
+.callout.blue .c-title   { color: #1e40af; }
+.callout.violet { background: #f5f3ff; border: 1px solid #ddd6fe; }
+.callout.violet .c-title { color: #4c1d95; }
+
+/* ── 비교 테이블 ── */
+.tbl-wrap { overflow-x: auto; margin: 1.75rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th {
+  background: #f3f4f6; font-weight: 700; text-align: left;
+  padding: 0.75rem 1rem; border: 1px solid #e5e7eb;
+}
+td { padding: 0.7rem 1rem; border: 1px solid #e5e7eb; color: #374151; }
+tr:hover td { background: #f9fafb; }
+.chk { color: #16a34a; font-weight: 700; }
+.xmk { color: #dc2626; font-weight: 700; }
+
+/* ── 타임라인 (데이터 종류 등 세로 목록) ── */
+.timeline { margin: 1.75rem 0; display: flex; flex-direction: column; gap: 0; }
+.tl-item {
+  display: flex; gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.tl-item:last-child { border-bottom: none; }
+.tl-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+.tl-body .tl-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+.tl-body p { font-size: 0.87rem; color: #6b7280; }
+.tl-body .tl-eg {
+  margin-top: 0.4rem; font-size: 0.78rem;
+  background: #f3f4f6; border-radius: 6px;
+  padding: 0.3rem 0.6rem; display: inline-block; color: #374151;
+}
+
+/* ── 영상 섹션 ── */
+.video-section { margin: 2rem 0; }
+.video-section h3 {
+  font-size: 0.92rem; font-weight: 700;
+  color: #6b7280; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.video-section h3 span { color: #e5e7eb; }
+.video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.1rem; }
+.v-card {
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 14px; overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.v-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+.v-embed { position: relative; padding-top: 56.25%; }
+.v-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.v-meta { padding: 1rem 1.1rem; }
+.v-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 700;
+  padding: 0.18rem 0.55rem; border-radius: 4px; margin-bottom: 0.4rem;
+}
+.v-meta h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.25rem; }
+.v-meta p { font-size: 0.78rem; color: #9ca3af; }
+
+/* ── 이미지 그리드 ── */
+.img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin: 1.75rem 0; }
+.img-card {
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 12px; overflow: hidden; text-align: center;
+}
+.img-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.img-card .img-caption { font-size: 0.75rem; color: #9ca3af; padding: 0.6rem 0.75rem; }
+
+/* ── 시뮬레이터 박스 ── */
+.sim-wrap {
+  background: white;
+  border: 2px solid #e0e7ff;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 1.75rem 0;
+  box-shadow: 0 2px 12px rgba(79,70,229,0.08);
+}
+.sim-header {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  color: white; padding: 1rem 1.5rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.sim-header h3 { font-size: 0.95rem; font-weight: 700; }
+.sim-header p { font-size: 0.78rem; opacity: 0.85; margin-top: 0.15rem; }
+.sim-body { padding: 1.5rem; }
+
+/* 시뮬레이터 내부 요소 */
+.sim-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.sim-tab {
+  padding: 0.45rem 1rem; border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb; color: #6b7280;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: all 0.15s;
+}
+.sim-tab.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+
+.canvas-wrap {
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  border-radius: 10px; overflow: hidden;
+  cursor: crosshair; position: relative;
+}
+canvas { display: block; width: 100%; }
+
+.sim-controls { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; align-items: center; }
+.btn {
+  padding: 0.55rem 1.2rem; border-radius: 8px;
+  border: 1.5px solid #e5e7eb; background: white;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 0.4rem;
+  color: #374151;
+}
+.btn:hover { border-color: #4f46e5; color: #4f46e5; background: #eef2ff; }
+.btn.primary { background: #4f46e5; border-color: #4f46e5; color: white; }
+.btn.primary:hover { background: #4338ca; }
+.btn.red { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+.btn.red.active { background: #dc2626; color: white; }
+.btn.blue2 { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.btn.blue2.active { background: #1d4ed8; color: white; }
+
+.slider-row { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 200px; }
+.slider-row label { font-size: 0.8rem; color: #6b7280; white-space: nowrap; }
+input[type=range] {
+  -webkit-appearance: none; flex: 1;
+  background: #e5e7eb; height: 5px; border-radius: 3px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: #4f46e5; cursor: pointer;
+}
+.slider-val { font-size: 0.8rem; font-weight: 700; color: #4f46e5; min-width: 32px; text-align: right; }
+
+.sim-result {
+  margin-top: 0.75rem; font-size: 0.85rem;
+  padding: 0.7rem 1rem; border-radius: 8px;
+  background: #f3f4f6; color: #6b7280;
+  min-height: 36px;
+}
+
+/* ── 핵심 정리 카드 ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem; margin: 1.75rem 0;
+}
+.sum-card {
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 14px; padding: 1.4rem;
+  border-top: 4px solid;
+}
+.sum-num { font-size: 1.3rem; font-weight: 900; margin-bottom: 0.6rem; }
+.sum-card h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.4rem; }
+.sum-card p { font-size: 0.82rem; color: #6b7280; }
+
+/* ── 퀴즈 ── */
+.quiz-card {
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 14px; padding: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+.quiz-q { font-size: 1rem; font-weight: 700; margin-bottom: 1.1rem; }
+.quiz-q .qnum { color: #4f46e5; margin-right: 0.5rem; font-size: 0.88rem; }
+.quiz-opts { display: flex; flex-direction: column; gap: 0.55rem; }
+.quiz-opt {
+  padding: 0.75rem 1.1rem; border-radius: 8px;
+  border: 1.5px solid #e5e7eb; background: #f9fafb;
+  cursor: pointer; font-size: 0.9rem;
+  transition: all 0.15s; display: flex; gap: 0.75rem; align-items: center;
+}
+.quiz-opt:hover { border-color: #a5b4fc; background: #eef2ff; }
+.quiz-opt.correct { border-color: #6ee7b7; background: #f0fdf4; color: #065f46; font-weight: 700; }
+.quiz-opt.wrong   { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+.opt-label { font-size: 0.75rem; font-weight: 700; color: #9ca3af; min-width: 18px; }
+.quiz-fb {
+  display: none; margin-top: 0.75rem;
+  font-size: 0.85rem; padding: 0.75rem 1rem; border-radius: 8px;
+}
+.quiz-fb.show { display: block; }
+.quiz-fb.ok  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.quiz-fb.ng  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+.score-box {
+  text-align: center; padding: 2.5rem;
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 16px; margin-top: 2rem;
+}
+.score-big { font-size: 3.5rem; font-weight: 900; color: #4f46e5; line-height: 1; }
+.score-of  { font-size: 0.95rem; color: #9ca3af; margin-top: 0.4rem; margin-bottom: 1.5rem; }
+.score-msg { font-size: 0.95rem; color: #374151; margin-bottom: 1.5rem; }
+
+/* ── 푸터 ── */
+footer {
+  text-align: center; padding: 2.5rem 1.5rem;
+  color: #9ca3af; font-size: 0.8rem;
+  border-top: 1px solid #e5e7eb;
+  background: white;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 580px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.8rem; }
+  .summary-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- 상단 네비 -->
+<nav class="top-nav">
+  <div class="site-name">🤖 AI 소양교육</div>
+  <a href="#ch06">📦 데이터</a>
+  <a href="#ch07">🤖 머신러닝</a>
+  <a href="#ch08">🧠 딥러닝</a>
+  <a href="#ch09">🎮 직접 체험</a>
+  <a href="#summary">📌 핵심 정리</a>
+  <a href="#quiz">✏️ 퀴즈</a>
+</nav>
+
+<!-- 히어로 -->
+<header class="hero">
+  <div class="hero-badge">🤖 고등학교 1학년 · AI 소양교육 · Part 2</div>
+  <h1>AI는 어떻게 배울까?</h1>
+  <p class="hero-desc">데이터가 뭔지, 머신러닝이 어떻게 작동하는지,<br>그리고 딥러닝이 왜 특별한지 함께 알아봐요.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>4개</strong><span>학습 챕터</span></div>
+    <div class="hero-stat"><strong>3개</strong><span>핵심 영상</span></div>
+    <div class="hero-stat"><strong>1개</strong><span>직접 체험</span></div>
+    <div class="hero-stat"><strong>5개</strong><span>마무리 퀴즈</span></div>
+  </div>
+  <nav class="hero-nav">
+    <a href="#ch06">📦 데이터란?</a>
+    <a href="#ch07">🤖 머신러닝</a>
+    <a href="#ch08">🧠 딥러닝</a>
+    <a href="#ch09">🎮 직접 체험</a>
+    <a href="#summary">📌 핵심 정리</a>
+    <a href="#quiz">✏️ 퀴즈</a>
+  </nav>
+</header>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 06 — AI의 밥은 데이터!
+═══════════════════════════════════════════ -->
+<section id="ch06">
+  <div class="ch-wrap">
+    <div class="ch-label acc-indigo"><span class="dot"></span>CHAPTER 06</div>
+    <h2>AI의 밥은 <span style="color:#4f46e5">데이터!</span></h2>
+    <p class="ch-sub">데이터가 뭔지 알아보자 — AI가 배우려면 먼저 밥이 필요해요.</p>
+  </div>
+
+  <div class="def-box">
+    <div class="icon">💡</div>
+    <div>
+      <div class="def-title">핵심 정의</div>
+      <p><strong>데이터(Data)</strong>란 관찰하거나 측정해서 얻은 사실과 수치의 모음입니다. AI에게 데이터는 말 그대로 <strong>밥</strong>이에요. 데이터 없이는 아무것도 배울 수 없고, 데이터가 많고 좋을수록 AI는 더 똑똑해집니다.</p>
+    </div>
+  </div>
+
+  <!-- 데이터 종류 -->
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-icon" style="background:#eff6ff">📝</div>
+      <div class="tl-body">
+        <div class="tl-title">정형 데이터 (Structured Data)</div>
+        <p>행과 열로 깔끔하게 정리된 표 형태의 데이터. 컴퓨터가 가장 다루기 쉬운 형태예요.</p>
+        <span class="tl-eg">📊 예: 학생 성적표, 날씨 측정값, 주가 데이터</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-icon" style="background:#f5f3ff">🖼️</div>
+      <div class="tl-body">
+        <div class="tl-title">비정형 데이터 (Unstructured Data)</div>
+        <p>정해진 형식 없이 자유롭게 존재하는 데이터. 현실에 존재하는 데이터의 약 80%가 이 형태예요.</p>
+        <span class="tl-eg">📸 예: 사진, 동영상, 음성 파일, SNS 게시글</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-icon" style="background:#f0fdf4">🕸️</div>
+      <div class="tl-body">
+        <div class="tl-title">반정형 데이터 (Semi-structured Data)</div>
+        <p>완전한 표 형태는 아니지만 일정한 규칙이 있는 데이터. 웹 서비스에서 자주 쓰여요.</p>
+        <span class="tl-eg">💻 예: 이메일, JSON 파일, HTML 문서</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 데이터 품질 -->
+  <h3 style="font-size:1.1rem; font-weight:800; margin:2rem 0 1rem">데이터 품질이 왜 중요할까?</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="c-icon">🗑️</div>
+      <h3>쓰레기 입력 → 쓰레기 출력</h3>
+      <p>나쁜 데이터로 학습한 AI는 엉터리 결과를 냅니다. "Garbage In, Garbage Out" — AI의 핵심 격언이에요.</p>
+    </div>
+    <div class="card">
+      <div class="c-icon">⚖️</div>
+      <h3>편향된 데이터의 위험</h3>
+      <p>특정 집단 데이터가 부족하면 AI는 불공평한 판단을 해요. 채용 AI가 특정 성별을 불이익 준 실제 사례가 있어요.</p>
+    </div>
+    <div class="card">
+      <div class="c-icon">📏</div>
+      <h3>양보다 질이 먼저</h3>
+      <p>100만 개의 나쁜 데이터보다 10만 개의 깨끗한 데이터가 낫습니다. 데이터 전처리가 AI 개발의 80%를 차지해요.</p>
+    </div>
+  </div>
+
+  <div class="callout yellow">
+    <div class="c-icon">⭐</div>
+    <div>
+      <div class="c-title">딱 한 줄 핵심!</div>
+      <p>AI의 성능은 알고리즘보다 <strong>데이터의 품질과 양</strong>에 더 크게 달려 있어요. 데이터를 잘 모으고 정리하는 것이 AI 개발의 출발점입니다.</p>
+    </div>
+  </div>
+
+  <!-- 영상 -->
+  <div class="video-section">
+    <h3>▶ 참고 영상 <span>|</span> 데이터를 이해하는 데 도움이 되는 영상이에요</h3>
+    <div class="video-grid">
+      <div class="v-card">
+        <div class="v-embed">
+          <iframe src="https://www.youtube.com/embed/wnpPNzwzEXQ" title="빅데이터란?" allowfullscreen></iframe>
+        </div>
+        <div class="v-meta">
+          <div class="v-tag" style="background:#dbeafe;color:#1d4ed8">빅데이터</div>
+          <h4>빅데이터란 무엇인가?</h4>
+          <p>우리 주변의 데이터가 어떻게 활용되는지 알아봐요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 07 — 처음 만나는 머신러닝
+═══════════════════════════════════════════ -->
+<section id="ch07">
+  <div class="ch-wrap">
+    <div class="ch-label acc-sky"><span class="dot"></span>CHAPTER 07</div>
+    <h2>처음 만나는 <span style="color:#0ea5e9">머신러닝</span></h2>
+    <p class="ch-sub">AI가 스스로 배운다고? — 사람처럼 경험으로 익히는 원리를 알아봐요.</p>
+  </div>
+
+  <div class="def-box" style="background:#f0f9ff; border-color:#bae6fd;">
+    <div class="icon">🤖</div>
+    <div>
+      <div class="def-title" style="color:#0ea5e9">핵심 정의</div>
+      <p><strong>머신러닝(Machine Learning)</strong>이란 컴퓨터가 명시적으로 프로그래밍되지 않아도 <strong>데이터에서 스스로 규칙을 찾아내어 학습</strong>하는 기술이에요. 사람이 "고양이는 귀가 뾰족하고…"라고 직접 알려주는 게 아니라, 수만 장의 고양이 사진을 보여줘서 AI 스스로 파악하게 합니다.</p>
+    </div>
+  </div>
+
+  <!-- 학습 방식 3가지 -->
+  <h3 style="font-size:1.05rem; font-weight:800; margin:1.75rem 0 1rem">머신러닝의 3가지 학습 방식</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="c-icon">🎯</div>
+      <h3>지도 학습 (Supervised)</h3>
+      <p>정답이 있는 데이터로 학습해요. 마치 선생님이 정답을 알려주며 가르치는 것처럼요.</p>
+      <span class="badge badge-blue">예: 스팸 분류, 주가 예측</span>
+    </div>
+    <div class="card">
+      <div class="c-icon">🔍</div>
+      <h3>비지도 학습 (Unsupervised)</h3>
+      <p>정답 없이 데이터의 패턴을 스스로 찾아요. 비슷한 것끼리 묶는 '군집화'가 대표적이에요.</p>
+      <span class="badge badge-violet">예: 고객 그룹 분류, 추천 시스템</span>
+    </div>
+    <div class="card">
+      <div class="c-icon">🎮</div>
+      <h3>강화 학습 (Reinforcement)</h3>
+      <p>보상과 벌칙으로 스스로 전략을 익혀요. 게임에서 이기면 +점수, 지면 -점수를 주며 학습해요.</p>
+      <span class="badge badge-green">예: 알파고, 게임 AI, 로봇 제어</span>
+    </div>
+  </div>
+
+  <div class="callout blue">
+    <div class="c-icon">💡</div>
+    <div>
+      <div class="c-title">알아두기</div>
+      <p>현재 우리가 사용하는 유튜브 추천, 넷플릭스 추천, 챗GPT는 모두 <strong>지도 학습</strong> 또는 그 응용 방식을 기반으로 하고 있어요. 가장 널리 쓰이는 학습 방식이에요.</p>
+    </div>
+  </div>
+
+  <!-- 영상 -->
+  <div class="video-section">
+    <h3>▶ 참고 영상 <span>|</span> 머신러닝 원리를 직관적으로 설명하는 영상들이에요</h3>
+    <div class="video-grid">
+      <div class="v-card">
+        <div class="v-embed">
+          <iframe src="https://www.youtube.com/embed/IHZwWFHWa-w" title="머신러닝이란?" allowfullscreen></iframe>
+        </div>
+        <div class="v-meta">
+          <div class="v-tag" style="background:#dcfce7;color:#166534">Google</div>
+          <h4>머신러닝이란 무엇인가?</h4>
+          <p>구글이 제작한 머신러닝 개념 소개 영상. 직관적인 예시가 풍부해요.</p>
+        </div>
+      </div>
+      <div class="v-card">
+        <div class="v-embed">
+          <iframe src="https://www.youtube.com/embed/ukzFI9rgwfU" title="머신러닝 알고리즘" allowfullscreen></iframe>
+        </div>
+        <div class="v-meta">
+          <div class="v-tag" style="background:#dbeafe;color:#1d4ed8">알고리즘</div>
+          <h4>머신러닝 핵심 알고리즘 5가지</h4>
+          <p>지도·비지도·강화 학습의 대표 알고리즘을 알기 쉽게 소개해요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 08 — 딥러닝이 뭐길래
+═══════════════════════════════════════════ -->
+<section id="ch08">
+  <div class="ch-wrap">
+    <div class="ch-label acc-violet"><span class="dot"></span>CHAPTER 08</div>
+    <h2>딥러닝이 <span style="color:#7c3aed">뭐길래?</span></h2>
+    <p class="ch-sub">사람의 뇌를 닮은 AI — 왜 딥러닝이 AI 혁명을 일으켰는지 알아봐요.</p>
+  </div>
+
+  <div class="def-box" style="background:#f5f3ff; border-color:#ddd6fe;">
+    <div class="icon">🧠</div>
+    <div>
+      <div class="def-title" style="color:#7c3aed">핵심 정의</div>
+      <p><strong>딥러닝(Deep Learning)</strong>은 머신러닝의 한 종류로, 인간 뇌의 신경세포(뉴런) 연결 구조를 모방한 <strong>인공 신경망(Neural Network)</strong>을 여러 층(layer)으로 깊게 쌓아 학습하는 방식이에요. '딥(Deep)'은 신경망이 깊다, 즉 층이 많다는 의미예요.</p>
+    </div>
+  </div>
+
+  <!-- 뉴런 비유 -->
+  <h3 style="font-size:1.05rem; font-weight:800; margin:1.75rem 0 1rem">인간 뇌 vs 인공 신경망</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th></th><th>🧠 인간의 뇌</th><th>🤖 인공 신경망</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>기본 단위</strong></td><td>뉴런 (신경세포)</td><td>인공 뉴런 (노드)</td></tr>
+        <tr><td><strong>연결</strong></td><td>시냅스</td><td>가중치 (Weight)</td></tr>
+        <tr><td><strong>학습</strong></td><td>경험으로 시냅스 강도 변화</td><td>데이터로 가중치 값 조정</td></tr>
+        <tr><td><strong>뉴런 수</strong></td><td>약 860억 개</td><td>수백~수억 개 (모델에 따라)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 신경망 구조 -->
+  <h3 style="font-size:1.05rem; font-weight:800; margin:1.75rem 0 1rem">신경망의 3층 구조</h3>
+  <div class="card-grid">
+    <div class="card" style="border-top:4px solid #4f46e5">
+      <div class="c-icon">📥</div>
+      <h3 style="color:#4f46e5">입력층 (Input Layer)</h3>
+      <p>데이터를 받아들이는 첫 번째 층. 이미지라면 각 픽셀의 밝기값이 입력돼요.</p>
+    </div>
+    <div class="card" style="border-top:4px solid #7c3aed">
+      <div class="c-icon">⚙️</div>
+      <h3 style="color:#7c3aed">은닉층 (Hidden Layer)</h3>
+      <p>패턴을 찾고 변환하는 중간 층. 층이 많을수록 더 복잡한 특징을 학습할 수 있어요.</p>
+    </div>
+    <div class="card" style="border-top:4px solid #0d9488">
+      <div class="c-icon">📤</div>
+      <h3 style="color:#0d9488">출력층 (Output Layer)</h3>
+      <p>최종 결과를 내보내는 층. "고양이 92%, 강아지 8%"처럼 확률로 답을 출력해요.</p>
+    </div>
+  </div>
+
+  <!-- 이미지 -->
+  <div class="img-grid">
+    <div class="img-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Artificial_neural_network.svg/500px-Artificial_neural_network.svg.png" alt="인공 신경망 구조">
+      <div class="img-caption">▲ 인공 신경망(ANN) 구조 (출처: Wikimedia Commons)</div>
+    </div>
+    <div class="img-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Neuron_Hand-tuned.svg/500px-Neuron_Hand-tuned.svg.png" alt="생물학적 뉴런">
+      <div class="img-caption">▲ 생물학적 뉴런 구조 — 인공 신경망의 모델이 됐어요. (출처: Wikimedia Commons)</div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="c-icon">🏆</div>
+    <div>
+      <div class="c-title">역사적 사건 — 2012년 ImageNet 대회</div>
+      <p>토론토 대학 제프리 힌턴 팀의 <strong>AlexNet</strong>이 기존 최고 성능보다 오류율을 <strong>절반 이하로</strong> 낮추며 우승했어요. 이 사건이 딥러닝 혁명의 신호탄이 됐고, 전 세계 AI 연구 방향이 바뀌었습니다.</p>
+    </div>
+  </div>
+
+  <!-- 영상 -->
+  <div class="video-section">
+    <h3>▶ 참고 영상 <span>|</span> 딥러닝과 신경망을 시각적으로 설명해 주는 영상이에요</h3>
+    <div class="video-grid">
+      <div class="v-card">
+        <div class="v-embed">
+          <iframe src="https://www.youtube.com/embed/aircAruvnKk" title="신경망이란?" allowfullscreen></iframe>
+        </div>
+        <div class="v-meta">
+          <div class="v-tag" style="background:#ede9fe;color:#6d28d9">3Blue1Brown</div>
+          <h4>신경망, 딥러닝이란?</h4>
+          <p>아름다운 애니메이션으로 신경망의 원리를 처음부터 차근차근 설명해 주는 명강의예요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 09 — 직접 해보는 AI 체험
+═══════════════════════════════════════════ -->
+<section id="ch09">
+  <div class="ch-wrap">
+    <div class="ch-label acc-teal"><span class="dot"></span>CHAPTER 09</div>
+    <h2>직접 해보는 <span style="color:#0d9488">AI 체험</span></h2>
+    <p class="ch-sub">KNN 분류기 — 3단계로 차근차근 따라해 봐요.</p>
+  </div>
+
+  <!-- KNN 원리 요약 -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.75rem;">
+    <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:12px;padding:1.25rem;text-align:center;">
+      <div style="font-size:1.8rem;margin-bottom:0.5rem">📦</div>
+      <div style="font-weight:800;font-size:0.9rem;color:#92400e;margin-bottom:0.3rem">STEP 1. 훈련 데이터</div>
+      <div style="font-size:0.82rem;color:#78350f">AI에게 "이건 A야, 이건 B야"라고 예시를 알려줘요</div>
+    </div>
+    <div style="background:#ede9fe;border:1px solid #ddd6fe;border-radius:12px;padding:1.25rem;text-align:center;">
+      <div style="font-size:1.8rem;margin-bottom:0.5rem">📏</div>
+      <div style="font-weight:800;font-size:0.9rem;color:#5b21b6;margin-bottom:0.3rem">STEP 2. 거리 계산</div>
+      <div style="font-size:0.82rem;color:#4c1d95">새 데이터와 모든 기존 데이터 사이의 거리를 잽니다</div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:1.25rem;text-align:center;">
+      <div style="font-size:1.8rem;margin-bottom:0.5rem">🗳️</div>
+      <div style="font-weight:800;font-size:0.9rem;color:#14532d;margin-bottom:0.3rem">STEP 3. 다수결</div>
+      <div style="font-size:0.82rem;color:#166534">가까운 K개 중 더 많은 쪽으로 분류해요</div>
+    </div>
+  </div>
+
+  <!-- 시뮬레이터 -->
+  <div class="sim-wrap">
+    <div class="sim-header">
+      <div>
+        <h3>🎮 KNN 분류기 직접 체험하기</h3>
+        <p>아래 3단계를 순서대로 따라해 보세요!</p>
+      </div>
+    </div>
+    <div class="sim-body">
+
+      <!-- 진행 단계 표시 -->
+      <div style="display:flex;gap:0;margin-bottom:1.5rem;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div class="step-indicator" id="si-0" style="flex:1;padding:0.7rem 0.5rem;text-align:center;background:#4f46e5;color:white;font-size:0.82rem;font-weight:700;cursor:pointer;" onclick="goStep(0)">
+          <div>① 데이터 찍기</div><div style="font-size:0.7rem;opacity:0.8;margin-top:0.15rem">빨강/파랑 점 추가</div>
+        </div>
+        <div class="step-indicator" id="si-1" style="flex:1;padding:0.7rem 0.5rem;text-align:center;background:#f3f4f6;color:#9ca3af;font-size:0.82rem;font-weight:700;cursor:pointer;border-left:1px solid #e5e7eb;" onclick="goStep(1)">
+          <div>② 새 데이터 놓기</div><div style="font-size:0.7rem;opacity:0.8;margin-top:0.15rem">노란 점 위치 선택</div>
+        </div>
+        <div class="step-indicator" id="si-2" style="flex:1;padding:0.7rem 0.5rem;text-align:center;background:#f3f4f6;color:#9ca3af;font-size:0.82rem;font-weight:700;cursor:pointer;border-left:1px solid #e5e7eb;" onclick="goStep(2)">
+          <div>③ AI 판단 보기</div><div style="font-size:0.7rem;opacity:0.8;margin-top:0.15rem">K개 이웃 & 결과</div>
+        </div>
+      </div>
+
+      <!-- 단계별 안내 말풍선 -->
+      <div id="guide-box" style="display:flex;gap:0.75rem;align-items:flex-start;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:1rem;">
+        <div style="font-size:1.4rem;flex-shrink:0">👆</div>
+        <div>
+          <div id="guide-title" style="font-weight:800;font-size:0.88rem;color:#1e40af;margin-bottom:0.2rem">① 훈련 데이터를 찍어주세요</div>
+          <div id="guide-body" style="font-size:0.83rem;color:#1e3a8a;">
+            아래 두 버튼으로 빨강(A)과 파랑(B)을 선택한 뒤, 캔버스 위를 클릭해서 점을 찍어요.<br>
+            <strong>예시:</strong> 빨강 3~4개를 왼쪽에, 파랑 3~4개를 오른쪽에 찍어보세요!
+          </div>
+        </div>
+      </div>
+
+      <!-- 클래스 선택 버튼 (step 0에서만 활성) -->
+      <div id="class-btns" style="display:flex;gap:0.6rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <button class="btn red active" id="btn-A" onclick="setClass('A')">🔴 빨강(A) 찍기</button>
+        <button class="btn blue2" id="btn-B" onclick="setClass('B')">🔵 파랑(B) 찍기</button>
+        <span id="count-badge" style="font-size:0.8rem;color:#9ca3af;display:flex;align-items:center;">점 0개 찍힘</span>
+      </div>
+
+      <!-- 캔버스 -->
+      <div class="canvas-wrap">
+        <canvas id="sim-canvas" width="800" height="300"></canvas>
+      </div>
+
+      <!-- ② 단계용: 노란 점 설명 박스 (step 1에서만 표시) -->
+      <div id="yellow-explain" style="display:none;margin-top:0.85rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:1rem 1.1rem;">
+        <div style="font-weight:800;font-size:0.88rem;color:#92400e;margin-bottom:0.5rem">🟡 노란 점이란?</div>
+        <div style="font-size:0.85rem;color:#78350f;line-height:1.7;">
+          AI가 <strong>아직 정답을 모르는 새 데이터</strong>예요.<br>
+          예를 들어 "고양이인지 강아지인지 모르는 새 사진"이라고 생각해 보세요.<br>
+          이 노란 점을 캔버스에 찍으면, AI가 주변 이웃을 보고 A인지 B인지 판단해요.<br>
+          <span style="color:#b45309">👉 빨강·파랑 사이 경계 근처에 찍으면 결과가 더 재미있어요!</span>
+        </div>
+      </div>
+
+      <!-- K 슬라이더 + K 시각화 패널 (step 2에서만 표시) -->
+      <div id="k-row" style="display:none;margin-top:1rem;">
+
+        <!-- K 개념 설명 -->
+        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;">
+          <div style="font-weight:800;font-size:0.88rem;color:#5b21b6;margin-bottom:0.5rem">K값이란?</div>
+          <div style="font-size:0.85rem;color:#4c1d95;line-height:1.7;">
+            K = "몇 명에게 물어볼 것인가"예요.<br>
+            노란 점 주변에서 <strong>가장 가까운 K개의 점</strong>을 골라, 빨강과 파랑 중 더 많은 쪽으로 분류해요.<br>
+            <strong>K=1</strong>이면 가장 친한 친구 1명에게만 물어보는 것, <strong>K=5</strong>이면 5명에게 물어 다수결로 결정하는 거예요.
+          </div>
+        </div>
+
+        <!-- 슬라이더 -->
+        <div style="font-size:0.82rem;font-weight:700;color:#374151;margin-bottom:0.5rem">🔢 K값을 바꿔보세요</div>
+        <div class="slider-row">
+          <span style="font-size:0.9rem;font-weight:900;color:#4f46e5;min-width:24px">1</span>
+          <input type="range" id="k-slider" min="1" max="9" step="2" value="3" oninput="onKChange(this.value)">
+          <span style="font-size:0.9rem;font-weight:900;color:#4f46e5;min-width:24px;text-align:right">9</span>
+        </div>
+
+        <!-- K 시각화 카드 -->
+        <div id="k-visual" style="margin-top:0.75rem;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+          <div id="k-card-header" style="padding:0.6rem 1rem;font-size:0.88rem;font-weight:800;background:#4f46e5;color:white;">
+            현재 K = <span id="k-val">3</span> — 가장 가까운 이웃 3개에게 물어봐요
+          </div>
+          <div style="padding:0.85rem 1rem;">
+            <!-- 이웃 동그라미 시각화 -->
+            <div id="k-dots" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.75rem;"></div>
+            <div id="k-desc" style="font-size:0.82rem;color:#6b7280;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과 패널 (step 2에서만 표시) -->
+      <div id="result-panel" style="display:none;margin-top:1rem;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="background:#f9fafb;padding:0.75rem 1rem;font-size:0.8rem;font-weight:700;color:#6b7280;border-bottom:1px solid #e5e7eb;">🤖 AI의 판단 과정 — 단계별로 보기</div>
+        <div style="padding:1rem;">
+
+          <!-- 판단 과정 화살표 흐름 -->
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+            <div style="background:#ede9fe;border-radius:8px;padding:0.5rem 0.85rem;font-size:0.8rem;text-align:center;">
+              <div style="font-size:0.7rem;color:#6d28d9;margin-bottom:0.15rem">노란 점 위치</div>
+              <div style="font-weight:700;color:#5b21b6">🟡 새 데이터</div>
+            </div>
+            <div style="color:#9ca3af;font-size:1rem;">→</div>
+            <div style="background:#fef3c7;border-radius:8px;padding:0.5rem 0.85rem;font-size:0.8rem;text-align:center;">
+              <div style="font-size:0.7rem;color:#92400e;margin-bottom:0.15rem">거리 계산 후 선택</div>
+              <div id="neighbor-list" style="font-weight:700;color:#78350f;font-size:0.82rem;"></div>
+            </div>
+            <div style="color:#9ca3af;font-size:1rem;">→</div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:0.5rem 0.85rem;font-size:0.8rem;text-align:center;">
+              <div style="font-size:0.7rem;color:#166534;margin-bottom:0.15rem">다수결</div>
+              <div id="vote-result" style="font-weight:700;color:#14532d;font-size:0.82rem;"></div>
+            </div>
+            <div style="color:#9ca3af;font-size:1rem;">→</div>
+            <div id="final-result-box" style="border-radius:8px;padding:0.5rem 0.85rem;font-size:0.8rem;text-align:center;border:2px solid;">
+              <div style="font-size:0.7rem;margin-bottom:0.15rem">최종 분류</div>
+              <div id="final-result" style="font-weight:900;font-size:1.1rem;"></div>
+            </div>
+          </div>
+
+          <!-- K 바꿔보기 안내 -->
+          <div style="background:#f9fafb;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;color:#6b7280;border:1px solid #f3f4f6;">
+            💡 위 K 슬라이더를 움직이면 참고하는 이웃 수가 바뀌고, 결과가 달라질 수 있어요!
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div style="display:flex;gap:0.6rem;margin-top:1rem;flex-wrap:wrap;">
+        <button class="btn primary" id="next-btn" onclick="nextStep()">다음 단계 →</button>
+        <button class="btn" onclick="resetSim()">↺ 처음부터</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="callout yellow">
+    <div class="c-icon">💡</div>
+    <div>
+      <div class="c-title">더 나아가기 — 티처블 머신(Teachable Machine)</div>
+      <p>구글이 만든 <strong>Teachable Machine</strong>(teachablemachine.withgoogle.com)에서 실제 카메라 영상으로 나만의 이미지 분류기를 코딩 없이 만들 수 있어요. 수업 시간에 직접 도전해 봐요!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SUMMARY
+═══════════════════════════════════════════ -->
+<section id="summary" style="padding-top:4rem">
+  <div class="ch-wrap">
+    <div class="ch-label" style="color:#6b7280"><span class="dot" style="background:#6b7280"></span>SUMMARY</div>
+    <h2>📌 이 단원의 <span style="color:#4f46e5">핵심 정리</span></h2>
+  </div>
+  <div class="summary-grid">
+    <div class="sum-card" style="border-color:#4f46e5">
+      <div class="sum-num" style="color:#4f46e5">01</div>
+      <h4>데이터의 종류</h4>
+      <p>정형(표), 비정형(이미지·음성·텍스트), 반정형(이메일·JSON). AI의 성능은 데이터 품질에 달려 있어요.</p>
+    </div>
+    <div class="sum-card" style="border-color:#0ea5e9">
+      <div class="sum-num" style="color:#0ea5e9">02</div>
+      <h4>머신러닝 vs 일반 프로그래밍</h4>
+      <p>일반 프로그램은 사람이 규칙을 만들고, 머신러닝은 데이터에서 AI가 스스로 규칙을 발견해요.</p>
+    </div>
+    <div class="sum-card" style="border-color:#7c3aed">
+      <div class="sum-num" style="color:#7c3aed">03</div>
+      <h4>3가지 학습 방식</h4>
+      <p>지도 학습(정답 O), 비지도 학습(정답 X), 강화 학습(보상 기반). 목적에 따라 다르게 사용해요.</p>
+    </div>
+    <div class="sum-card" style="border-color:#0d9488">
+      <div class="sum-num" style="color:#0d9488">04</div>
+      <h4>딥러닝과 신경망</h4>
+      <p>뇌의 뉴런을 모방한 인공 신경망을 여러 층으로 쌓은 것. 입력층 → 은닉층 → 출력층 구조예요.</p>
+    </div>
+    <div class="sum-card" style="border-color:#6b7280">
+      <div class="sum-num" style="color:#6b7280">05</div>
+      <h4>KNN 분류 원리</h4>
+      <p>"가장 가까운 K개 이웃의 다수결"로 분류해요. K값이 클수록 경계가 부드러워지고, 작을수록 예민해져요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     QUIZ
+═══════════════════════════════════════════ -->
+<section id="quiz" style="padding-top:4rem">
+  <div class="ch-wrap">
+    <div class="ch-label" style="color:#6b7280"><span class="dot" style="background:#6b7280"></span>QUIZ</div>
+    <h2>✏️ 마무리 퀴즈</h2>
+    <p class="ch-sub">배운 내용을 확인해 봐요! 문항을 클릭해서 정답을 선택하세요.</p>
+  </div>
+  <div id="quiz-container"></div>
+  <div class="score-box">
+    <div class="score-big" id="score-num">0</div>
+    <div class="score-of">/ 5 정답 수</div>
+    <div class="score-msg" id="score-msg"></div>
+    <button class="btn primary" onclick="resetQuiz()" style="margin:0 auto">🔄 다시 풀기</button>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  고등학교 1학년을 위한 인공지능 소양교육 학습서 · Part 2 — AI는 어떻게 배울까?
+</footer>
+
+<script>
+/* ── 시뮬레이터 ── */
+const canvas = document.getElementById('sim-canvas');
+const ctx = canvas.getContext('2d');
+let points = [], currentClass = 'A', simStep = 0;
+let predPoint = null, kNeighbors = [];
+
+// 단계 안내 내용
+const GUIDES = [
+  {
+    icon: '👆',
+    titleColor: '#1e40af',
+    bgColor: '#eff6ff', borderColor: '#bfdbfe',
+    title: '① 훈련 데이터를 찍어주세요',
+    body: '🔴 빨강(A)과 🔵 파랑(B) 버튼으로 색을 고른 뒤, 캔버스 위를 클릭해 점을 찍어요.<br><strong>팁:</strong> 빨강 3~4개를 왼쪽에, 파랑 3~4개를 오른쪽에 찍으면 결과가 잘 보여요!'
+  },
+  {
+    icon: '🟡',
+    titleColor: '#92400e',
+    bgColor: '#fffbeb', borderColor: '#fde68a',
+    title: '② 새로 들어온 데이터를 놓아주세요',
+    body: '"AI가 아직 정답을 모르는 새 데이터"예요. 캔버스를 클릭해 노란 점을 올려두세요.<br><strong>어디에 찍을지?</strong> 빨강과 파랑 사이 경계 근처에 찍으면 더 재미있어요!'
+  },
+  {
+    icon: '🤖',
+    titleColor: '#14532d',
+    bgColor: '#f0fdf4', borderColor: '#bbf7d0',
+    title: '③ AI가 이렇게 판단했어요!',
+    body: 'K개의 가장 가까운 이웃을 점선으로 연결해 보여줘요. 점선 원 안의 이웃이 더 많은 쪽으로 분류돼요.<br><strong>K 슬라이더</strong>를 움직여보면 결과가 달라지는 것을 볼 수 있어요!'
+  }
+];
+
+function goStep(s) {
+  simStep = s;
+  [0,1,2].forEach(i => {
+    const el = document.getElementById('si-'+i);
+    if(i === s) { el.style.background='#4f46e5'; el.style.color='white'; }
+    else        { el.style.background='#f3f4f6'; el.style.color='#9ca3af'; }
+  });
+  const g = GUIDES[s];
+  const gb = document.getElementById('guide-box');
+  gb.style.background = g.bgColor; gb.style.borderColor = g.borderColor;
+  gb.querySelector(':first-child').textContent = g.icon;
+  document.getElementById('guide-title').style.color = g.titleColor;
+  document.getElementById('guide-title').textContent = g.title;
+  document.getElementById('guide-body').innerHTML = g.body;
+
+  document.getElementById('class-btns').style.display     = s === 0 ? 'flex' : 'none';
+  document.getElementById('yellow-explain').style.display = s === 1 ? 'block' : 'none';
+  document.getElementById('k-row').style.display          = s === 2 ? 'block' : 'none';
+  document.getElementById('result-panel').style.display   = s === 2 ? 'block' : 'none';
+
+  if(s === 2) renderKDots(parseInt(document.getElementById('k-slider').value));
+
+  const nb = document.getElementById('next-btn');
+  if(s === 0)      nb.textContent = '점 다 찍었어요 →';
+  else if(s === 1) nb.textContent = '노란 점 찍었어요 →';
+  else             nb.textContent = '✅ 다시 해볼게요';
+
+  canvas.style.cursor = (s === 0 || s === 1) ? 'crosshair' : 'default';
+}
+
+function nextStep() {
+  if(simStep === 0) {
+    const a = points.filter(p=>p.cls==='A').length, b = points.filter(p=>p.cls==='B').length;
+    if(a < 2 || b < 2) {
+      shakeGuide('빨강(A) 2개, 파랑(B) 2개 이상 찍어야 다음으로 넘어갈 수 있어요!'); return;
+    }
+    goStep(1);
+  } else if(simStep === 1) {
+    if(!predPoint) { shakeGuide('노란 점을 먼저 캔버스에 찍어주세요!'); return; }
+    runKNN();
+    goStep(2);
+  } else {
+    resetSim();
+  }
+}
+
+function shakeGuide(msg) {
+  const gb = document.getElementById('guide-body');
+  const orig = gb.innerHTML;
+  gb.innerHTML = `<strong style="color:#dc2626">⚠️ ${msg}</strong>`;
+  setTimeout(() => { gb.innerHTML = orig; }, 2000);
+}
+
+function setClass(c) {
+  currentClass = c;
+  document.getElementById('btn-A').classList.toggle('active', c === 'A');
+  document.getElementById('btn-B').classList.toggle('active', c === 'B');
+}
+
+function initCanvas() {
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = 300;
+  drawSim();
+}
+
+function drawSim() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f9fafb'; ctx.fillRect(0,0,W,H);
+
+  // 격자
+  ctx.strokeStyle = 'rgba(0,0,0,0.04)'; ctx.lineWidth = 1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // 이웃 연결선 (step 2)
+  if(simStep === 2 && predPoint && kNeighbors.length) {
+    // 원 그리기 (가장 먼 이웃 거리)
+    const maxD = Math.max(...kNeighbors.map(n => Math.hypot(n.x-predPoint.x, n.y-predPoint.y)));
+    ctx.beginPath(); ctx.arc(predPoint.x, predPoint.y, maxD, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(251,191,36,0.3)'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+    ctx.stroke(); ctx.setLineDash([]);
+    // 선
+    kNeighbors.forEach(n => {
+      ctx.beginPath(); ctx.moveTo(predPoint.x, predPoint.y); ctx.lineTo(n.x, n.y);
+      ctx.strokeStyle = 'rgba(251,191,36,0.7)'; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+      ctx.stroke(); ctx.setLineDash([]);
+      // 이웃 강조 링
+      ctx.beginPath(); ctx.arc(n.x, n.y, 14, 0, Math.PI*2);
+      ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2; ctx.stroke();
+    });
+  }
+
+  // 훈련 데이터 점
+  points.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI*2);
+    ctx.fillStyle = p.cls === 'A' ? '#ef4444' : '#3b82f6';
+    ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.cls, p.x, p.y);
+  });
+
+  // 예측 포인트 (노란 점)
+  if(predPoint) {
+    // 결과 나왔으면 예측 클래스 색상으로 채우기
+    let fillColor = '#fbbf24';
+    if(simStep === 2 && kNeighbors.length) {
+      const aV = kNeighbors.filter(n=>n.cls==='A').length;
+      const bV = kNeighbors.length - aV;
+      fillColor = aV >= bV ? '#fca5a5' : '#93c5fd'; // 연한 결과 색
+    }
+    ctx.beginPath(); ctx.arc(predPoint.x, predPoint.y, 13, 0, Math.PI*2);
+    ctx.fillStyle = fillColor; ctx.fill();
+    ctx.strokeStyle = simStep === 2 ? '#fbbf24' : '#f59e0b'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#1a202c'; ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(simStep === 2 ? '★' : '?', predPoint.x, predPoint.y);
+  }
+
+  // 빈 캔버스 안내
+  if(points.length === 0) {
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.font = '14px "Noto Sans KR"';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(simStep === 1 ? '노란 점을 놓을 위치를 클릭하세요 🟡' : '여기를 클릭해서 점을 찍어보세요 👆', W/2, H/2);
+  }
+}
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+  const x = (e.clientX-rect.left)*sx, y = (e.clientY-rect.top)*sy;
+
+  if(simStep === 0) {
+    points.push({x, y, cls: currentClass});
+    const a = points.filter(p=>p.cls==='A').length, b = points.filter(p=>p.cls==='B').length;
+    document.getElementById('count-badge').textContent =
+      `🔴 A ${a}개 · 🔵 B ${b}개 찍힘`;
+    drawSim();
+  } else if(simStep === 1) {
+    predPoint = {x, y};
+    drawSim();
+  }
+});
+
+function runKNN() {
+  const k = parseInt(document.getElementById('k-slider').value);
+  const dists = points.map(p=>({...p, d: Math.hypot(p.x-predPoint.x, p.y-predPoint.y)})).sort((a,b)=>a.d-b.d);
+  kNeighbors = dists.slice(0, Math.min(k, dists.length));
+  const aV = kNeighbors.filter(n=>n.cls==='A').length;
+  const bV = kNeighbors.length - aV;
+  const pred = aV >= bV ? 'A' : 'B';
+  const col = pred === 'A' ? '#ef4444' : '#3b82f6';
+  const bgCol = pred === 'A' ? '#fef2f2' : '#eff6ff';
+
+  document.getElementById('neighbor-list').innerHTML =
+    `가까운 ${kNeighbors.length}개:<br>` +
+    kNeighbors.map(n=>`<span style="color:${n.cls==='A'?'#ef4444':'#3b82f6'}">${n.cls==='A'?'🔴':'🔵'}${n.cls}</span>`).join(' ');
+
+  document.getElementById('vote-result').innerHTML =
+    `🔴 A: ${aV}표<br>🔵 B: ${bV}표<br><strong>${pred} 승!</strong>`;
+
+  const frb = document.getElementById('final-result-box');
+  frb.style.background = bgCol; frb.style.borderColor = col;
+  document.getElementById('final-result').innerHTML =
+    `<span style="color:${col}">${pred === 'A' ? '🔴 A' : '🔵 B'}</span>`;
+
+  renderKDots(k);
+  drawSim();
+}
+
+function renderKDots(k) {
+  const dotsEl = document.getElementById('k-dots');
+  const descEl = document.getElementById('k-desc');
+  const headerEl = document.getElementById('k-card-header');
+  headerEl.innerHTML = `현재 K = <span id="k-val">${k}</span> — 가장 가까운 이웃 ${k}개에게 물어봐요`;
+  // 이웃 점 시각화: 실제 이웃 색으로 표시, 없으면 회색
+  if(kNeighbors.length) {
+    dotsEl.innerHTML = kNeighbors.slice(0,k).map((n,i) =>
+      `<div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="width:28px;height:28px;border-radius:50%;background:${n.cls==='A'?'#ef4444':'#3b82f6'};display:flex;align-items:center;justify-content:center;color:white;font-size:0.7rem;font-weight:700;">${n.cls}</div>
+        <div style="font-size:0.65rem;color:#9ca3af">${i+1}번째</div>
+      </div>`
+    ).join('<div style="color:#d1d5db;font-size:0.8rem;align-self:center;">·</div>');
+  } else {
+    dotsEl.innerHTML = Array.from({length:k},(_,i)=>
+      `<div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:0.7rem;">?</div>
+        <div style="font-size:0.65rem;color:#9ca3af">${i+1}번째</div>
+      </div>`
+    ).join('<div style="color:#d1d5db;font-size:0.8rem;align-self:center;">·</div>');
+  }
+  const msgs = {
+    1:'⚠️ K=1: 딱 1명에게만 물어봐요. 가장 가까운 점 1개가 전부예요. 그 점이 노이즈(오류)라면 틀릴 수 있어요.',
+    3:'✅ K=3: 3명에게 물어보고 다수결(2:1)로 결정해요. 균형이 좋아요.',
+    5:'✅ K=5: 5명 다수결(3:2)로 결정해요. 더 안정적이에요.',
+    7:'K=7: 7명 다수결이에요. 경계가 점점 부드러워져요.',
+    9:'K=9: 9명 다수결이에요. 전체 데이터 수가 적으면 거의 모두에게 물어보는 셈이에요.'
+  };
+  descEl.textContent = msgs[k] || `K=${k}: ${k}명 다수결로 결정해요.`;
+}
+
+function onKChange(v) {
+  const k = parseInt(v);
+  renderKDots(k);
+  if(predPoint && points.length >= 2) runKNN();
+}
+
+function resetSim() {
+  points = []; predPoint = null; kNeighbors = [];
+  document.getElementById('count-badge').textContent = '점 0개 찍힘';
+  goStep(0); drawSim();
+}
+
+window.addEventListener('resize', initCanvas);
+initCanvas();
+goStep(0);
+
+/* ── 퀴즈 ── */
+const Q = [
+  { q:'다음 중 "비정형 데이터"에 해당하는 것은?',
+    opts:['학생 성적 표','주가 데이터 CSV','SNS 사진과 동영상','날씨 측정값'],
+    ans:2, exp:'비정형 데이터는 정해진 형식 없이 자유롭게 존재하는 사진·동영상·음성·텍스트 등을 말해요. 나머지는 모두 행과 열로 정리된 정형 데이터예요.' },
+  { q:'머신러닝의 "지도 학습"에 대한 설명으로 가장 올바른 것은?',
+    opts:['정답 없이 데이터의 패턴을 스스로 찾는다','보상과 벌칙을 통해 최적 행동을 학습한다','정답이 있는 데이터로 모델을 학습시킨다','신경망을 깊게 쌓아 복잡한 패턴을 학습한다'],
+    ans:2, exp:'지도 학습은 입력(X)과 정답(Y) 쌍의 데이터로 모델을 학습시키는 방식이에요. 스팸 필터, 이미지 분류 등이 대표적이에요.' },
+  { q:'"딥러닝"이라는 이름에서 "딥(Deep)"이 의미하는 것은?',
+    opts:['학습 데이터가 매우 깊은 곳에 저장된다','신경망의 층(Layer)이 많다는 의미다','AI가 매우 깊이 생각한다는 의미다','알고리즘이 복잡하고 이해하기 어렵다'],
+    ans:1, exp:'"딥(Deep)"은 신경망의 층(Layer)이 많다, 즉 깊다는 의미예요. 은닉층이 많을수록 더 복잡한 패턴을 학습할 수 있어요.' },
+  { q:'2012년 ImageNet 대회에서 딥러닝이 주목받게 된 이유로 가장 알맞은 것은?',
+    opts:['최초로 사람과 대화한 AI가 등장했기 때문에','AlexNet이 기존 방법보다 오류율을 절반 이하로 낮췄기 때문에','강화 학습으로 바둑 세계 챔피언을 처음 이겼기 때문에','처음으로 100만 장 이상의 이미지를 학습했기 때문에'],
+    ans:1, exp:'제프리 힌턴 팀의 AlexNet이 기존 최고 성능보다 오류율을 절반 이하로 낮추며 우승했어요. 이것이 딥러닝 혁명의 신호탄이 됐습니다.' },
+  { q:'KNN(K-최근접 이웃) 알고리즘에서 K=1로 설정하면 어떤 특성이 생기나요?',
+    opts:['항상 가장 정확한 예측을 한다','노이즈(이상치)에 민감하여 불안정해질 수 있다','계산 속도가 K=5보다 5배 느려진다','항상 클래스 A로만 분류한다'],
+    ans:1, exp:'K=1이면 단 하나의 가장 가까운 이웃으로만 분류해요. 이상치(노이즈)가 있으면 잘못된 예측을 할 가능성이 커요. K가 클수록 더 안정적이지만 경계가 부드러워져요.' }
+];
+
+let answered = new Array(Q.length).fill(false);
+let score = 0;
+
+function renderQuiz() {
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = '';
+  Q.forEach((q,qi) => {
+    c.innerHTML += `
+    <div class="quiz-card">
+      <div class="quiz-q"><span class="qnum">Q${qi+1}</span>${q.q}</div>
+      <div class="quiz-opts">
+        ${q.opts.map((o,oi)=>`<div class="quiz-opt" id="opt-${qi}-${oi}" onclick="pick(${qi},${oi})"><span class="opt-label">${['A','B','C','D'][oi]}</span>${o}</div>`).join('')}
+      </div>
+      <div class="quiz-fb" id="fb-${qi}"></div>
+    </div>`;
+  });
+  updateScore();
+}
+
+function pick(qi, oi) {
+  if(answered[qi]) return;
+  answered[qi] = true;
+  const ok = Q[qi].ans === oi;
+  if(ok) score++;
+  document.getElementById(`opt-${qi}-${oi}`).classList.add(ok?'correct':'wrong');
+  if(!ok) document.getElementById(`opt-${qi}-${Q[qi].ans}`).classList.add('correct');
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.className = `quiz-fb show ${ok?'ok':'ng'}`;
+  fb.textContent = (ok?'✅ 정답! ':'❌ 오답. ') + Q[qi].exp;
+  updateScore();
+}
+
+function updateScore() {
+  const done = answered.filter(Boolean).length;
+  document.getElementById('score-num').textContent = score;
+  if(done === Q.length) {
+    const pct = Math.round(score/Q.length*100);
+    document.getElementById('score-msg').textContent =
+      pct>=80 ? `🎉 훌륭해요! ${pct}점 — 데이터와 학습의 원리를 잘 이해했군요!` :
+      pct>=60 ? `👍 잘했어요! ${pct}점 — 틀린 문항을 다시 읽어봐요.` :
+               `💪 ${pct}점 — 본문을 다시 한번 읽고 도전해 봐요!`;
+  }
+}
+
+function resetQuiz() {
+  answered = new Array(Q.length).fill(false);
+  score = 0;
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
