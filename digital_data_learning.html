@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터의 디지털 표현</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e29;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8890a4;
+    --text3: #4a5068;
+    --accent: #6d5cff;
+    --accent2: #a98fff;
+    --green: #2ecc8a;
+    --red: #ff5f6d;
+    --amber: #ffb347;
+    --blue: #4fc3f7;
+    --pink: #f472b6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Noto Sans KR', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 2rem;
+    height: 56px;
+  }
+  .nav-logo {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent2); white-space: nowrap;
+  }
+  .nav-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0; }
+  .nav-tab {
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    color: var(--text2); background: transparent; border: none; white-space: nowrap;
+    transition: all .15s; font-family: var(--sans);
+  }
+  .nav-tab:hover { background: var(--bg3); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+
+  /* LAYOUT */
+  main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 3rem 0 2.5rem; }
+  .hero-tag {
+    display: inline-block; font-size: 11px; font-family: var(--mono); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent2); background: rgba(109,92,255,.12);
+    border: 1px solid rgba(109,92,255,.2); border-radius: 20px; padding: 4px 14px;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 700; line-height: 1.2; margin-bottom: .8rem; }
+  .hero h1 span { color: var(--accent2); }
+  .hero p { font-size: 15px; color: var(--text2); max-width: 520px; margin: 0 auto; }
+  .hero-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 2rem; }
+  .hero-card {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 12px; text-align: center;
+  }
+  .hero-card-icon { font-size: 22px; margin-bottom: 6px; }
+  .hero-card-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .hero-card-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem;
+  }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card p { font-size: 14px; color: var(--text2); line-height: 1.75; }
+  .card-accent { border-color: rgba(109,92,255,.3); background: rgba(109,92,255,.05); }
+
+  /* BITS */
+  .bit-labels { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .bit-label { width: 52px; font-size: 11px; text-align: center; color: var(--text3); font-family: var(--mono); }
+  .bit-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .bit {
+    width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; font-weight: 700; cursor: pointer;
+    transition: all .15s; user-select: none; font-family: var(--mono);
+    border: 1px solid var(--border2); background: var(--bg3); color: var(--text3);
+  }
+  .bit.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 14px rgba(109,92,255,.4); }
+  .bit:hover { border-color: rgba(169,143,255,.5); transform: translateY(-1px); }
+
+  .result-bar {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;
+  }
+  .result-item { display: flex; flex-direction: column; gap: 2px; }
+  .result-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+  .result-val { font-size: 18px; font-weight: 600; font-family: var(--mono); color: var(--accent2); }
+
+  /* CONVERT */
+  .number-input {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-size: 16px; font-family: var(--mono); padding: 10px 14px;
+    width: 100%; outline: none; transition: border-color .15s; margin: 10px 0 14px;
+  }
+  .number-input:focus { border-color: var(--accent); }
+  .steps-container { max-height: 220px; overflow-y: auto; margin-bottom: 12px; }
+  .step-row {
+    display: flex; align-items: center; gap: 10px; padding: 7px 0;
+    border-bottom: 1px solid var(--border); font-size: 13px; font-family: var(--mono);
+  }
+  .step-row:last-child { border-bottom: none; }
+  .s-num { color: var(--text); min-width: 36px; }
+  .s-op { color: var(--text3); }
+  .s-rem { color: var(--green); font-weight: 600; }
+  .base-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .base-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .base-box label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 4px; }
+  .base-box .val { font-size: 15px; font-weight: 600; font-family: var(--mono); color: var(--accent2); }
+
+  /* ASCII */
+  .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; margin-top: 12px; }
+  .char-card {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 6px; text-align: center; cursor: pointer; transition: all .15s;
+  }
+  .char-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .char-card.selected { border-color: var(--accent); background: rgba(109,92,255,.1); }
+  .char-big { font-size: 20px; font-weight: 700; color: var(--text); }
+  .char-dec { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: var(--mono); }
+  .char-bin { font-size: 9px; color: var(--text3); font-family: var(--mono); letter-spacing: -.02em; }
+  .char-detail {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px;
+    padding: 1.2rem 1.4rem; margin-top: 14px; display: none;
+  }
+  .char-detail table { width: 100%; border-collapse: collapse; }
+  .char-detail td { padding: 7px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .char-detail tr:last-child td { border-bottom: none; }
+  .char-detail td:first-child { color: var(--text2); }
+  .char-detail td:last-child { color: var(--accent2); font-family: var(--mono); font-weight: 600; text-align: right; }
+
+  /* ASCII text input */
+  .text-to-bin { margin-top: 14px; }
+  .text-to-bin input {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-size: 15px; padding: 10px 14px; width: 100%; outline: none;
+    font-family: var(--mono); margin-bottom: 10px; transition: border-color .15s;
+  }
+  .text-to-bin input:focus { border-color: var(--accent); }
+  .bin-stream { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--accent2); word-break: break-all; background: var(--bg3); border-radius: 8px; padding: 12px 14px; min-height: 48px; }
+  .bin-stream .char-group { display: inline-block; margin-right: 6px; color: var(--text2); }
+  .bin-stream .char-group span { color: var(--accent2); }
+
+  /* RGB */
+  .color-preview { width: 100%; height: 100px; border-radius: 10px; margin-bottom: 12px; transition: background .08s; }
+  .slider-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .slider-row label { font-size: 13px; font-weight: 700; min-width: 18px; font-family: var(--mono); }
+  .slider-row input[type=range] { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; outline: none; background: var(--bg3); }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; cursor: pointer; background: var(--accent); border: 2px solid #fff;
+  }
+  .slider-val { font-family: var(--mono); font-size: 13px; font-weight: 600; min-width: 34px; text-align: right; color: var(--text); }
+  .hex-display { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .color-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .color-info-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .color-info-box .ci-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+  .color-info-box .ci-val { font-size: 14px; font-weight: 600; font-family: var(--mono); margin: 4px 0 2px; }
+  .color-info-box .ci-bin { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+
+  /* PRESETS */
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .preset-btn {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .preset-btn:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+
+  /* QUIZ */
+  .quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+  .quiz-progress-bar { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; margin: 0 1rem; overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+  .quiz-counter { font-size: 12px; color: var(--text3); font-family: var(--mono); white-space: nowrap; }
+  .quiz-q { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 1.2rem; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px;
+    font-size: 14px; cursor: pointer; color: var(--text2); background: var(--bg3);
+    transition: all .15s; text-align: left; font-family: var(--sans); line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: rgba(169,143,255,.4); background: rgba(109,92,255,.08); color: var(--text); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(46,204,138,.1); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--red); background: rgba(255,95,109,.1); color: var(--red); }
+  .quiz-feedback { margin-top: 12px; font-size: 13px; color: var(--text2); min-height: 20px; line-height: 1.6; }
+  .quiz-nav { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .btn-primary {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all .15s; font-family: var(--sans);
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .3; cursor: default; transform: none; }
+  .quiz-complete {
+    text-align: center; padding: 3rem 1rem;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .score-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: conic-gradient(var(--green) var(--pct), var(--bg3) var(--pct));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .score-inner {
+    width: 78px; height: 78px; border-radius: 50%; background: var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: var(--green); font-family: var(--mono);
+  }
+
+  /* SECTION TRANSITIONS */
+  .section { animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity: .5; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; gap: 1rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+    .hero-cards { grid-template-columns: repeat(2,1fr); }
+    .base-grid { grid-template-columns: 1fr; }
+    .bit { width: 40px; height: 40px; font-size: 16px; }
+    .bit-label { width: 40px; font-size: 10px; }
+    .color-info-grid { grid-template-columns: 1fr; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+  /* INLINE CODE */
+  code { font-family: var(--mono); font-size: .9em; background: rgba(109,92,255,.15); color: var(--accent2); padding: 1px 5px; border-radius: 4px; }
+
+  /* TAG */
+  .tag { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 600; }
+  .tag-purple { background: rgba(109,92,255,.15); color: var(--accent2); }
+  .tag-green  { background: rgba(46,204,138,.12); color: var(--green); }
+  .tag-blue   { background: rgba(79,195,247,.12); color: var(--blue); }
+  .tag-amber  { background: rgba(255,179,71,.12); color: var(--amber); }
+
+  /* INFO BOXES */
+  .info-box { border-left: 3px solid var(--accent); background: rgba(109,92,255,.07); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+  .info-box p { font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">컴퓨터 기초</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('home')">개요</button>
+    <button class="nav-tab" onclick="showTab('binary')">이진수 기초</button>
+    <button class="nav-tab" onclick="showTab('convert')">진법 변환</button>
+    <button class="nav-tab" onclick="showTab('ascii')">문자 표현</button>
+    <button class="nav-tab" onclick="showTab('color')">색상 표현</button>
+    <button class="nav-tab" onclick="showTab('quiz')">퀴즈</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HOME -->
+  <div class="section active" id="sec-home">
+    <div class="hero">
+      <div class="hero-tag">Computer Science · Unit 1</div>
+      <h1>데이터의 <span>디지털 표현</span></h1>
+      <p>컴퓨터가 숫자, 문자, 색상 등 모든 정보를 어떻게 0과 1로 저장하는지 직접 체험하며 배워보세요.</p>
+      <div class="hero-cards">
+        <div class="hero-card"><div class="hero-card-icon">⚡</div><div class="hero-card-title">비트 & 바이트</div><div class="hero-card-sub">데이터 최소 단위</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🔢</div><div class="hero-card-title">이진수 / 진법</div><div class="hero-card-sub">2·8·16진법</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🔤</div><div class="hero-card-title">ASCII 코드</div><div class="hero-card-sub">문자 → 숫자</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🎨</div><div class="hero-card-title">RGB 색상</div><div class="hero-card-sub">24비트 색상 표현</div></div>
+      </div>
+    </div>
+
+    <div class="card card-accent">
+      <h2>🧠 핵심 개념</h2>
+      <p style="margin-bottom:10px">디지털 컴퓨터는 <strong>전기 신호의 켜짐(1) / 꺼짐(0)</strong>으로 모든 정보를 표현합니다. 이 한 자리를 <strong>비트(bit)</strong>라 하며, 8비트가 모이면 <strong>1바이트(byte)</strong>가 됩니다.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <span class="tag tag-purple">1 bit = 0 또는 1</span>
+        <span class="tag tag-green">1 byte = 8 bits</span>
+        <span class="tag tag-blue">1 KB = 1,024 bytes</span>
+        <span class="tag tag-amber">1 MB = 1,024 KB</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📚 학습 순서</h2>
+      <p style="margin-bottom:14px">왼쪽 탭을 순서대로 클릭하며 학습하세요. 각 섹션에는 직접 조작해볼 수 있는 인터랙티브 요소가 있습니다.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--accent2);min-width:24px">01</span>
+          <div><div style="font-weight:600;font-size:14px">이진수 기초</div><div style="font-size:13px;color:var(--text2)">8비트를 직접 켜고 끄며 이진수↔십진수 변환 체험</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--accent2);min-width:24px">02</span>
+          <div><div style="font-weight:600;font-size:14px">진법 변환</div><div style="font-size:13px;color:var(--text2)">십진수를 입력하면 2진수로 변환하는 과정을 단계별 확인</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--accent2);min-width:24px">03</span>
+          <div><div style="font-weight:600;font-size:14px">문자 표현 (ASCII)</div><div style="font-size:13px;color:var(--text2)">글자를 클릭하거나 단어를 입력해 이진수 표현 확인</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--accent2);min-width:24px">04</span>
+          <div><div style="font-weight:600;font-size:14px">색상 표현 (RGB)</div><div style="font-size:13px;color:var(--text2)">슬라이더로 색을 만들며 24비트 이진 표현 체험</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--accent2);min-width:24px">05</span>
+          <div><div style="font-weight:600;font-size:14px">확인 퀴즈</div><div style="font-size:13px;color:var(--text2)">5문제로 학습 내용 점검</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BINARY -->
+  <div class="section" id="sec-binary">
+    <div class="card">
+      <h2>💡 비트(Bit)와 이진수</h2>
+      <p>컴퓨터는 모든 정보를 <code>0</code>과 <code>1</code>로만 저장합니다. 8비트 이진수에서 각 자리는 <strong>2의 거듭제곱</strong> 값을 가집니다.</p>
+      <div class="info-box" style="margin-top:12px"><p>📌 2^7=128, 2^6=64, 2^5=32, 2^4=16, 2^3=8, 2^2=4, 2^1=2, 2^0=1</p></div>
+    </div>
+
+    <div class="card">
+      <h2>🖱️ 직접 켜고 끄세요</h2>
+      <p style="margin-bottom:14px">비트를 클릭해 <code>0 / 1</code>을 바꿔보세요. 켜진 비트의 자릿값을 모두 더하면 십진수가 됩니다.</p>
+      <div class="bit-labels" id="bit-labels"></div>
+      <div class="bit-grid" id="bit-grid"></div>
+      <div class="result-bar" id="bit-result">
+        <div class="result-item"><div class="result-label">이진수</div><div class="result-val" id="r-bin">00000000</div></div>
+        <div class="result-item"><div class="result-label">십진수</div><div class="result-val" id="r-dec">0</div></div>
+        <div class="result-item"><div class="result-label">16진수</div><div class="result-val" id="r-hex">0x00</div></div>
+        <div class="result-item"><div class="result-label">8진수</div><div class="result-val" id="r-oct">0o00</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📖 이진수 덧셈 원리</h2>
+      <p>이진수는 <strong>2가 되면 올림</strong>이 발생합니다. <code>1 + 1 = 10(이진수)</code> → 십진수로 2입니다.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <div class="base-box"><label>십진수 덧셈</label><div class="val">5 + 3 = 8</div></div>
+        <div class="base-box"><label>이진수 덧셈</label><div class="val">101 + 011 = 1000</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERT -->
+  <div class="section" id="sec-convert">
+    <div class="card">
+      <h2>🔄 십진수 → 이진수 변환 원리</h2>
+      <p>십진수를 2로 나눠가며 나머지를 기록하고, 나머지를 <strong>역순으로</strong> 읽으면 이진수가 됩니다.</p>
+    </div>
+    <div class="card">
+      <h2>숫자를 입력하세요 (0~255)</h2>
+      <input class="number-input" type="number" min="0" max="255" value="42" id="dec-input" oninput="updateConvert()">
+      <div id="steps-container" class="steps-container"></div>
+      <div class="result-bar"><div class="result-item"><div class="result-label">나머지를 역순으로 읽은 결과</div><div class="result-val" id="conv-result">00101010</div></div></div>
+    </div>
+    <div class="card">
+      <h2>📊 4가지 진법 비교</h2>
+      <div class="base-grid">
+        <div class="base-box"><label>십진수 (10진법)</label><div class="val" id="cmp-dec">42</div></div>
+        <div class="base-box"><label>이진수 (2진법)</label><div class="val" id="cmp-bin">00101010</div></div>
+        <div class="base-box"><label>16진수 (16진법)</label><div class="val" id="cmp-hex">2A</div></div>
+        <div class="base-box"><label>8진수 (8진법)</label><div class="val" id="cmp-oct">52</div></div>
+      </div>
+      <div class="info-box" style="margin-top:14px"><p>💡 16진수는 0~9, A~F를 사용합니다. A=10, B=11, ... F=15 입니다.</p></div>
+    </div>
+  </div>
+
+  <!-- ASCII -->
+  <div class="section" id="sec-ascii">
+    <div class="card">
+      <h2>🔤 ASCII 코드란?</h2>
+      <p>컴퓨터는 문자도 숫자로 저장합니다. 어떤 문자가 어떤 숫자에 해당하는지 정해놓은 표준이 <strong>ASCII</strong>입니다. 예: <code>'A' = 65</code>, <code>'a' = 97</code>, <code>'0' = 48</code></p>
+      <div class="info-box"><p>📌 대문자 A~Z: 65~90 / 소문자 a~z: 97~122 / 숫자 0~9: 48~57</p></div>
+    </div>
+    <div class="card">
+      <h2>글자를 클릭해 이진수를 확인하세요</h2>
+      <div class="char-grid" id="char-grid"></div>
+      <div class="char-detail" id="char-detail">
+        <table id="char-table"></table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>✍️ 문자 → 이진수 스트림</h2>
+      <p style="margin-bottom:10px">영문자를 입력하면 각 글자가 어떤 이진수로 저장되는지 보여줍니다.</p>
+      <div class="text-to-bin">
+        <input type="text" id="text-input" placeholder="영문을 입력하세요 (예: Hello)" oninput="updateTextBin()" maxlength="20">
+        <div class="bin-stream" id="bin-stream">여기에 이진수 스트림이 표시됩니다...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR -->
+  <div class="section" id="sec-color">
+    <div class="card">
+      <h2>🎨 RGB 색상 표현</h2>
+      <p>모든 색은 <strong>빨강(R)</strong>, <strong>초록(G)</strong>, <strong>파랑(B)</strong> 3가지 빛의 조합입니다. 각 색상값은 <code>0~255</code> 범위로 8비트에 저장되며, 한 픽셀은 <strong>24비트(3바이트)</strong>를 차지합니다.</p>
+    </div>
+    <div class="card">
+      <h2>슬라이더로 색상을 만들어보세요</h2>
+      <div class="presets" id="presets"></div>
+      <div id="color-preview" class="color-preview"></div>
+      <div class="hex-display" id="hex-display">#6339D2</div>
+      <div class="slider-row"><label style="color:#ff6b6b">R</label><input type="range" min="0" max="255" value="99" id="r-s" oninput="updateColor()"><span class="slider-val" id="r-v">99</span></div>
+      <div class="slider-row"><label style="color:#51cf66">G</label><input type="range" min="0" max="255" value="57" id="g-s" oninput="updateColor()"><span class="slider-val" id="g-v">57</span></div>
+      <div class="slider-row"><label style="color:#74c0fc">B</label><input type="range" min="0" max="255" value="210" id="b-s" oninput="updateColor()"><span class="slider-val" id="b-v">210</span></div>
+      <div class="color-info-grid" id="color-info-grid"></div>
+    </div>
+    <div class="card">
+      <h2>🖼️ 이미지와 픽셀</h2>
+      <p>디지털 이미지는 수많은 픽셀의 집합입니다. 예를 들어 <strong>1920×1080 해상도</strong> 이미지는 <code>1920 × 1080 × 3 = 6,220,800 bytes ≈ 5.9 MB</code>의 공간이 필요합니다 (압축 전 기준).</p>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="sec-quiz">
+    <div class="card" id="quiz-card">
+      <div class="quiz-header">
+        <span class="quiz-counter" id="quiz-counter">1 / 5</span>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill" style="width:20%"></div></div>
+      </div>
+      <div class="quiz-q" id="quiz-q"></div>
+      <div class="quiz-opts" id="quiz-opts"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-nav"><button class="btn-primary" id="quiz-next" onclick="nextQ()" disabled>다음 문제 →</button></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ========== TABS ==========
+function showTab(id) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sec-'+id).classList.add('active');
+}
+
+// ========== BINARY ==========
+const weights = [128,64,32,16,8,4,2,1];
+const bits = new Array(8).fill(0);
+
+(function initBits() {
+  const labelsEl = document.getElementById('bit-labels');
+  const gridEl = document.getElementById('bit-grid');
+  weights.forEach((w, i) => {
+    const l = document.createElement('div');
+    l.className = 'bit-label';
+    l.textContent = '2^' + (7-i);
+    labelsEl.appendChild(l);
+    const b = document.createElement('div');
+    b.className = 'bit';
+    b.textContent = '0';
+    b.onclick = () => {
+      bits[i] ^= 1;
+      b.textContent = bits[i];
+      b.classList.toggle('on', bits[i] === 1);
+      updateBitDisplay();
+    };
+    gridEl.appendChild(b);
+  });
+  updateBitDisplay();
+})();
+
+function updateBitDisplay() {
+  const dec = bits.reduce((s, b, i) => s + b * weights[i], 0);
+  document.getElementById('r-bin').textContent = bits.join('');
+  document.getElementById('r-dec').textContent = dec;
+  document.getElementById('r-hex').textContent = '0x' + dec.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('r-oct').textContent = '0o' + dec.toString(8).padStart(3,'0');
+}
+
+// ========== CONVERT ==========
+function updateConvert() {
+  let n = parseInt(document.getElementById('dec-input').value) || 0;
+  n = Math.min(255, Math.max(0, n));
+  const steps = document.getElementById('steps-container');
+  steps.innerHTML = '';
+  const rems = [];
+  let tmp = n;
+  if (tmp === 0) rems.push(0);
+  while (tmp > 0) {
+    const rem = tmp % 2;
+    const div = Math.floor(tmp / 2);
+    rems.push(rem);
+    const row = document.createElement('div');
+    row.className = 'step-row';
+    row.innerHTML = `<span class="s-num">${tmp}</span><span class="s-op">÷ 2 =</span><span class="s-num">${div}</span><span class="s-op">... 나머지</span><span class="s-rem">${rem}</span>`;
+    steps.appendChild(row);
+    tmp = div;
+  }
+  const bin = rems.reverse().join('').padStart(8,'0');
+  document.getElementById('conv-result').textContent = bin;
+  document.getElementById('cmp-dec').textContent = n;
+  document.getElementById('cmp-bin').textContent = bin;
+  document.getElementById('cmp-hex').textContent = n.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('cmp-oct').textContent = n.toString(8);
+}
+updateConvert();
+
+// ========== ASCII ==========
+const asciiChars = [
+  ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  ...'abcdefghijklmnopqrstuvwxyz',
+  ...'0123456789',
+  '!','@','#','$','%','&','*','?','+'
+];
+
+(function initChars() {
+  const grid = document.getElementById('char-grid');
+  asciiChars.forEach(ch => {
+    const code = ch.charCodeAt(0);
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.innerHTML = `<div class="char-big">${ch}</div><div class="char-dec">${code}</div><div class="char-bin">${code.toString(2).padStart(8,'0')}</div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      showCharDetail(ch, code);
+    };
+    grid.appendChild(card);
+  });
+})();
+
+function showCharDetail(ch, code) {
+  const detail = document.getElementById('char-detail');
+  detail.style.display = 'block';
+  document.getElementById('char-table').innerHTML = `
+    <tr><td>문자</td><td>'${ch}'</td></tr>
+    <tr><td>십진수 (ASCII)</td><td>${code}</td></tr>
+    <tr><td>이진수 (8비트)</td><td>${code.toString(2).padStart(8,'0')}</td></tr>
+    <tr><td>16진수</td><td>0x${code.toString(16).toUpperCase().padStart(2,'0')}</td></tr>
+    <tr><td>8진수</td><td>0o${code.toString(8)}</td></tr>
+  `;
+}
+
+function updateTextBin() {
+  const text = document.getElementById('text-input').value;
+  const container = document.getElementById('bin-stream');
+  if (!text) { container.textContent = '여기에 이진수 스트림이 표시됩니다...'; return; }
+  container.innerHTML = text.split('').map(ch => {
+    const code = ch.charCodeAt(0);
+    return `<span class="char-group">${ch}<br><span>${code.toString(2).padStart(8,'0')}</span></span>`;
+  }).join(' ');
+}
+
+// ========== COLOR ==========
+const colorPresets = [
+  [255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,255,255],[255,0,255],
+  [255,165,0],[255,255,255],[0,0,0],[99,57,210],[46,204,138],[255,95,109]
+];
+
+(function initPresets() {
+  const el = document.getElementById('presets');
+  colorPresets.forEach(([r,g,b]) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.style.background = `rgb(${r},${g},${b})`;
+    btn.title = `rgb(${r},${g},${b})`;
+    btn.onclick = () => {
+      document.getElementById('r-s').value = r;
+      document.getElementById('g-s').value = g;
+      document.getElementById('b-s').value = b;
+      updateColor();
+    };
+    el.appendChild(btn);
+  });
+  updateColor();
+})();
+
+function updateColor() {
+  const r = +document.getElementById('r-s').value;
+  const g = +document.getElementById('g-s').value;
+  const b = +document.getElementById('b-s').value;
+  document.getElementById('r-v').textContent = r;
+  document.getElementById('g-v').textContent = g;
+  document.getElementById('b-v').textContent = b;
+  const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0').toUpperCase()).join('');
+  document.getElementById('color-preview').style.background = hex;
+  document.getElementById('hex-display').textContent = `${hex}  →  rgb(${r}, ${g}, ${b})`;
+  const grid = document.getElementById('color-info-grid');
+  const labels = ['빨강 (R)','초록 (G)','파랑 (B)'];
+  const colors = ['#ff6b6b','#51cf66','#74c0fc'];
+  grid.innerHTML = [r,g,b].map((v,i) => `
+    <div class="color-info-box">
+      <div class="ci-label" style="color:${colors[i]}">${labels[i]}</div>
+      <div class="ci-val" style="color:${colors[i]}">${v}</div>
+      <div class="ci-bin">${v.toString(2).padStart(8,'0')}</div>
+    </div>`).join('');
+}
+
+// ========== QUIZ ==========
+const questions = [
+  { q:'이진수 <code>00001010</code>은 십진수로 얼마인가요?', opts:['8','10','12','16'], ans:1, exp:'2^3=8, 2^1=2이므로 8+2=10입니다.' },
+  { q:'십진수 <code>255</code>를 이진수로 나타내면?', opts:['11110000','10101010','11111111','11001100'], ans:2, exp:'255 = 128+64+32+16+8+4+2+1, 8비트 모두 1이므로 11111111입니다.' },
+  { q:'<code>1바이트(byte)</code>는 몇 비트(bit)인가요?', opts:['4','8','16','32'], ans:1, exp:'1바이트 = 8비트입니다. 컴퓨터 데이터의 기본 단위입니다.' },
+  { q:'ASCII에서 문자 <code>\'A\'</code>의 십진수 코드값은?', opts:['65','97','48','64'], ans:0, exp:'\'A\'=65, 소문자 \'a\'=97입니다. 대소문자 차이는 32입니다.' },
+  { q:'RGB 색상 표현에서 픽셀 하나를 저장하는 데 필요한 비트 수는?', opts:['8비트','16비트','24비트','32비트'], ans:2, exp:'R·G·B 각 8비트 = 총 24비트(3바이트)입니다.' },
+];
+
+let qIdx = 0, answered = false, score = 0;
+
+function renderQ() {
+  const q = questions[qIdx];
+  document.getElementById('quiz-counter').textContent = `${qIdx+1} / ${questions.length}`;
+  document.getElementById('quiz-progress-fill').style.width = ((qIdx+1)/questions.length*100) + '%';
+  document.getElementById('quiz-q').innerHTML = q.q;
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('quiz-next').disabled = true;
+  answered = false;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.innerHTML = opt;
+    btn.onclick = () => {
+      if (answered) return;
+      answered = true;
+      document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+      if (i === q.ans) {
+        btn.classList.add('correct');
+        document.getElementById('quiz-feedback').textContent = '✓ 정답! ' + q.exp;
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+        document.getElementById('quiz-feedback').textContent = '✗ 틀렸습니다. ' + q.exp;
+      }
+      const isLast = qIdx === questions.length - 1;
+      document.getElementById('quiz-next').disabled = false;
+      document.getElementById('quiz-next').textContent = isLast ? '결과 보기 🎉' : '다음 문제 →';
+    };
+    opts.appendChild(btn);
+  });
+}
+
+function nextQ() {
+  if (qIdx < questions.length - 1) {
+    qIdx++;
+    renderQ();
+  } else {
+    const pct = Math.round(score / questions.length * 100);
+    const card = document.getElementById('quiz-card');
+    const msg = pct === 100 ? '완벽해요! 🏆' : pct >= 60 ? '잘 하셨어요! 👍' : '복습이 필요해요 📚';
+    card.innerHTML = `
+      <div class="quiz-complete">
+        <div class="score-ring" style="--pct:${pct}%">
+          <div class="score-inner">${score}/${questions.length}</div>
+        </div>
+        <div style="font-size:20px;font-weight:700">${msg}</div>
+        <div style="font-size:14px;color:var(--text2)">정답률 ${pct}% — ${score}문제 정답</div>
+        <button class="btn-primary" onclick="resetQuiz()">다시 풀기</button>
+      </div>`;
+  }
+}
+
+function resetQuiz() {
+  qIdx = 0; score = 0;
+  document.getElementById('quiz-card').innerHTML = `
+    <div class="quiz-header">
+      <span class="quiz-counter" id="quiz-counter">1 / 5</span>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill" style="width:20%"></div></div>
+    </div>
+    <div class="quiz-q" id="quiz-q"></div>
+    <div class="quiz-opts" id="quiz-opts"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div class="quiz-nav"><button class="btn-primary" id="quiz-next" onclick="nextQ()" disabled>다음 문제 →</button></div>`;
+  renderQ();
+}
+
+renderQ();
+</script>
+</body>
+</html>
