@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 용량 단위 완벽 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf8;
+    --bg2: #ffffff;
+    --bg3: #f3f2ee;
+    --text: #1c1917;
+    --text2: #6b6560;
+    --text3: #a8a29e;
+    --border: rgba(0,0,0,.07);
+    --border2: rgba(0,0,0,.12);
+    --sans: 'Noto Sans KR', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+
+    /* unit accent colors */
+    --bit:  #94a3b8;
+    --byte: #7c3aed;
+    --kb:   #2563eb;
+    --mb:   #0891b2;
+    --gb:   #059669;
+    --tb:   #d97706;
+    --pb:   #dc2626;
+    --eb:   #db2777;
+    --zb:   #7c3aed;
+    --yb:   #0f172a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 4rem 1.5rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,.02) 40px,
+      rgba(255,255,255,.02) 80px
+    );
+  }
+  .header-inner { position: relative; max-width: 700px; margin: 0 auto; }
+  .header-kicker {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(255,255,255,.45); font-family: var(--mono); margin-bottom: 1rem;
+  }
+  header h1 {
+    font-size: clamp(28px, 6vw, 46px); font-weight: 900; line-height: 1.15;
+    margin-bottom: 1rem; letter-spacing: -.02em;
+  }
+  header h1 em { color: #fbbf24; font-style: normal; }
+  header p { font-size: 15px; color: rgba(255,255,255,.6); max-width: 480px; margin: 0 auto; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,250,248,.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border2);
+    padding: 0 1.5rem; height: 50px;
+    display: flex; align-items: center; gap: 2rem;
+  }
+  .nav-brand { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .nav-links { display: flex; gap: 0; overflow-x: auto; }
+  .nav-link {
+    padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--text2);
+    text-decoration: none; white-space: nowrap; border-radius: 6px; transition: all .15s;
+    border: none; background: none; cursor: pointer; font-family: var(--sans);
+  }
+  .nav-link:hover { color: var(--text); background: var(--bg3); }
+  .nav-link.active { color: var(--text); background: var(--bg3); }
+
+  /* ── MAIN ── */
+  main { max-width: 880px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+  /* ── SECTIONS ── */
+  .content-section { margin-bottom: 5rem; }
+  .section-header { margin-bottom: 2rem; }
+  .section-label {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text3); font-family: var(--mono); margin-bottom: 6px;
+  }
+  .section-title { font-size: clamp(22px, 4vw, 30px); font-weight: 800; line-height: 1.25; letter-spacing: -.02em; }
+  .section-desc { font-size: 15px; color: var(--text2); margin-top: 8px; max-width: 560px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .card-sm { padding: 1rem 1.25rem; border-radius: 10px; }
+
+  /* ── INFO BOX ── */
+  .infobox {
+    border-left: 3px solid var(--text3); background: var(--bg3);
+    border-radius: 0 10px 10px 0; padding: 12px 16px;
+    font-size: 14px; color: var(--text2); margin: 1rem 0;
+  }
+  .infobox strong { color: var(--text); }
+
+  /* ── UNIT CARDS (the big showcase) ── */
+  .unit-cards { display: flex; flex-direction: column; gap: 1px; }
+  .unit-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; transition: box-shadow .2s;
+  }
+  .unit-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.07); }
+
+  .unit-header {
+    display: flex; align-items: stretch; gap: 0; cursor: pointer;
+    padding: 0;
+  }
+  .unit-accent {
+    width: 5px; flex-shrink: 0; border-radius: 14px 0 0 0;
+  }
+  .unit-card.expanded .unit-accent { border-radius: 14px 0 0 14px; }
+  .unit-main { flex: 1; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+
+  .unit-badge {
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px; white-space: nowrap; flex-shrink: 0;
+  }
+  .unit-name-wrap { flex: 1; }
+  .unit-name { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+  .unit-eng  { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+  .unit-size { font-family: var(--mono); font-size: 13px; color: var(--text2); white-space: nowrap; }
+  .unit-chevron { color: var(--text3); transition: transform .2s; font-size: 18px; padding-right: .5rem; }
+  .unit-card.expanded .unit-chevron { transform: rotate(180deg); }
+
+  .unit-body {
+    display: none; border-top: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+  .unit-card.expanded .unit-body { display: block; }
+
+  .unit-visual { margin-bottom: 1.25rem; }
+  .scale-bar-wrap { height: 10px; background: var(--bg3); border-radius: 5px; overflow: hidden; margin-bottom: 6px; }
+  .scale-bar { height: 100%; border-radius: 5px; }
+  .scale-note { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  .unit-body h4 { font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; margin-top: 16px; }
+  .unit-body h4:first-child { margin-top: 0; }
+
+  .analogies { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .analogy {
+    background: var(--bg3); border-radius: 8px; padding: 10px 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .analogy-icon { font-size: 20px; flex-shrink: 0; line-height: 1.4; }
+  .analogy-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .analogy-text strong { color: var(--text); display: block; font-size: 13px; margin-bottom: 1px; }
+
+  .unit-fact {
+    background: var(--bg3); border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: var(--text2); line-height: 1.65; margin-top: 8px;
+  }
+  .unit-fact strong { color: var(--text); }
+
+  /* ── SCALE VISUALIZER ── */
+  .scale-section { margin-bottom: 5rem; }
+  .pyramid {
+    display: flex; flex-direction: column; gap: 4px; align-items: center;
+  }
+  .pyramid-row {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+  }
+  .pyramid-bar-wrap { flex: 1; height: 36px; background: var(--bg3); border-radius: 6px; overflow: hidden; position: relative; }
+  .pyramid-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; }
+  .pyramid-bar-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.9); white-space: nowrap; font-family: var(--mono); }
+  .pyramid-info { min-width: 120px; text-align: right; font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .pyramid-unit { min-width: 36px; text-align: right; font-size: 13px; font-weight: 700; }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .cmp-table th {
+    padding: 10px 14px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    font-weight: 700; text-align: left; background: var(--bg3); color: var(--text2);
+    border-bottom: 1px solid var(--border2);
+  }
+  .cmp-table td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle;
+  }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:hover td { background: var(--bg3); }
+  .cmp-table td:first-child { font-weight: 700; color: var(--text); }
+  .cmp-table code { font-family: var(--mono); font-size: .88em; background: var(--bg3); padding: 1px 5px; border-radius: 4px; color: var(--text); }
+
+  /* ── 1024 vs 1000 ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .col-box { border-radius: 12px; padding: 1.25rem; border: 1px solid var(--border); }
+  .col-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .col-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .col-box li { font-size: 13px; color: var(--text2); font-family: var(--mono); display: flex; justify-content: space-between; }
+  .col-box li span { color: var(--text); font-weight: 600; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+  .quiz-progress { height: 3px; background: var(--bg3); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: var(--text); border-radius: 2px; transition: width .3s; }
+  .quiz-meta { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 1rem; }
+  .quiz-q { font-size: 17px; font-weight: 700; margin-bottom: 1.25rem; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    border: 1px solid var(--border2); border-radius: 9px; padding: 11px 16px;
+    font-size: 14px; cursor: pointer; color: var(--text2); background: var(--bg);
+    transition: all .15s; text-align: left; font-family: var(--sans); line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { background: var(--bg3); color: var(--text); border-color: rgba(0,0,0,.2); }
+  .quiz-opt.correct { border-color: #059669; background: rgba(5,150,105,.08); color: #065f46; font-weight: 500; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: rgba(220,38,38,.07); color: #991b1b; }
+  .quiz-fb { margin-top: 12px; font-size: 13px; color: var(--text2); line-height: 1.65; min-height: 20px; }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; }
+  .quiz-count { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .btn-dark {
+    background: var(--text); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: opacity .15s; font-family: var(--sans);
+  }
+  .btn-dark:hover { opacity: .8; }
+  .btn-dark:disabled { opacity: .3; cursor: default; }
+  .quiz-result { text-align: center; padding: 2.5rem 1rem; }
+  .result-score { font-size: 56px; font-weight: 900; letter-spacing: -.04em; margin-bottom: 6px; }
+  .result-msg { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .result-sub { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem 1.5rem;
+    text-align: center; font-size: 13px; color: var(--text3);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+    .unit-size { display: none; }
+    .pyramid-info { display: none; }
+    .analogies { grid-template-columns: 1fr; }
+    nav { padding: 0 1rem; gap: 1rem; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-kicker">Computer Science · 컴퓨터 기초</div>
+    <h1>데이터 <em>용량 단위</em><br>완벽 가이드</h1>
+    <p>비트 하나부터 요타바이트까지 — 실생활 비유로 크기를 직관적으로 이해해보세요</p>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-brand">용량 단위</div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="scrollTo('#intro')">개요</button>
+    <button class="nav-link" onclick="scrollTo('#units')">단위별 상세</button>
+    <button class="nav-link" onclick="scrollTo('#scale')">크기 시각화</button>
+    <button class="nav-link" onclick="scrollTo('#table')">비교표</button>
+    <button class="nav-link" onclick="scrollTo('#tip')">1024 vs 1000</button>
+    <button class="nav-link" onclick="scrollTo('#quiz')">퀴즈</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ── INTRO ── -->
+<section class="content-section" id="intro">
+  <div class="section-header">
+    <div class="section-label">01 · 개요</div>
+    <h2 class="section-title">데이터 용량이란?</h2>
+    <p class="section-desc">컴퓨터가 저장하고 처리하는 정보의 크기를 숫자로 나타낸 것입니다. 가장 작은 단위인 비트(bit)에서 시작해 8배, 1024배씩 단계적으로 커집니다.</p>
+  </div>
+
+  <div class="card">
+    <p style="font-size:15px;color:var(--text2);line-height:1.8">
+      컴퓨터는 <strong style="color:var(--text)">전기 신호의 켜짐(1)과 꺼짐(0)</strong>으로만 정보를 저장합니다.
+      이 최소 단위 하나가 <strong style="color:var(--text)">비트(bit)</strong>입니다.
+      8개의 비트가 모이면 <strong style="color:var(--text)">1바이트(Byte)</strong>가 되고,
+      바이트가 1,024개 모이면 <strong style="color:var(--text)">1킬로바이트(KB)</strong>가 됩니다.
+      이렇게 <strong style="color:var(--text)">1,024배씩</strong> 단위가 커져 메가바이트, 기가바이트, 테라바이트… 로 이어집니다.
+    </p>
+  </div>
+
+  <div class="infobox">
+    <strong>왜 1,000이 아니라 1,024인가요?</strong><br>
+    컴퓨터는 2진법(이진법)을 사용하기 때문에 2의 거듭제곱 단위로 커집니다. 2¹⁰ = 1,024이므로, 1KB = 1,024B입니다. 1,000이 아닙니다.
+  </div>
+
+  <!-- mini scale row -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1.5rem">
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--bit);font-weight:700">bit</span><span style="color:var(--text3);font-size:11px">최소</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">×8</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--byte);font-weight:700">B</span><span style="color:var(--text3);font-size:11px">바이트</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">×1,024</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--kb);font-weight:700">KB</span><span style="color:var(--text3);font-size:11px">킬로</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">×1,024</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--mb);font-weight:700">MB</span><span style="color:var(--text3);font-size:11px">메가</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">×1,024</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--gb);font-weight:700">GB</span><span style="color:var(--text3);font-size:11px">기가</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">×1,024</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="color:var(--tb);font-weight:700">TB</span><span style="color:var(--text3);font-size:11px">테라</span>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:13px">⋯</div>
+  </div>
+</section>
+
+<!-- ── UNIT CARDS ── -->
+<section class="content-section" id="units">
+  <div class="section-header">
+    <div class="section-label">02 · 단위별 상세</div>
+    <h2 class="section-title">각 단위 자세히 보기</h2>
+    <p class="section-desc">각 항목을 클릭하면 실생활 비유와 상세 정보를 확인할 수 있습니다.</p>
+  </div>
+
+  <div class="unit-cards" id="unit-cards"></div>
+</section>
+
+<!-- ── SCALE ── -->
+<section class="content-section" id="scale">
+  <div class="section-header">
+    <div class="section-label">03 · 크기 시각화</div>
+    <h2 class="section-title">상대적 크기 한눈에 보기</h2>
+    <p class="section-desc">바이트를 1로 기준 잡았을 때 각 단위가 얼마나 큰지 막대로 표현했습니다.</p>
+  </div>
+  <div class="card">
+    <div class="pyramid" id="pyramid"></div>
+  </div>
+</section>
+
+<!-- ── TABLE ── -->
+<section class="content-section" id="table">
+  <div class="section-header">
+    <div class="section-label">04 · 비교표</div>
+    <h2 class="section-title">전체 단위 비교표</h2>
+  </div>
+  <div class="cmp-wrap">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>단위</th>
+          <th>기호</th>
+          <th>바이트 수</th>
+          <th>대표 사례</th>
+        </tr>
+      </thead>
+      <tbody id="cmp-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 1024 vs 1000 ── -->
+<section class="content-section" id="tip">
+  <div class="section-header">
+    <div class="section-label">05 · 주의사항</div>
+    <h2 class="section-title">1,024 vs 1,000 — 자주 헷갈리는 차이</h2>
+    <p class="section-desc">컴퓨터 세계와 제조사 표기 사이의 미묘한 차이가 있습니다.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="col-box" style="border-color:rgba(37,99,235,.2);background:rgba(37,99,235,.03)">
+      <h3 style="color:var(--kb)">💻 컴퓨터 / OS 기준 (이진법)</h3>
+      <ul>
+        <li>1 KB <span>= 1,024 B</span></li>
+        <li>1 MB <span>= 1,048,576 B</span></li>
+        <li>1 GB <span>= 1,073,741,824 B</span></li>
+        <li>1 TB <span>= 1,099,511,627,776 B</span></li>
+      </ul>
+    </div>
+    <div class="col-box" style="border-color:rgba(217,119,6,.2);background:rgba(217,119,6,.03)">
+      <h3 style="color:var(--tb)">🏭 HDD 제조사 기준 (십진법)</h3>
+      <ul>
+        <li>1 KB <span>= 1,000 B</span></li>
+        <li>1 MB <span>= 1,000,000 B</span></li>
+        <li>1 GB <span>= 1,000,000,000 B</span></li>
+        <li>1 TB <span>= 1,000,000,000,000 B</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="infobox" style="margin-top:1rem">
+    <strong>왜 "500GB HDD"가 465GB로 표시될까요?</strong><br>
+    제조사는 500,000,000,000바이트를 500GB라고 표기하지만, 운영체제는 이진법으로 계산해
+    500,000,000,000 ÷ 1,073,741,824 ≈ <strong>465.7GB</strong>로 보여줍니다.
+    사기가 아니라 계산 기준이 다른 것입니다.
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">IEC 이진 접두어 (혼동 방지용 표준)</h3>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:12px">이 혼란을 해결하기 위해 국제전기기술위원회(IEC)가 이진법 전용 단위를 제정했습니다. 아직 일반적으로 많이 쓰이지는 않지만 Linux나 기술 문서에서 자주 등장합니다.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);text-align:center">
+        <div style="font-weight:700;color:var(--text)">KiB</div><div style="color:var(--text3);font-size:11px;margin-top:2px">키비바이트</div><div style="color:var(--text2);font-size:11px">= 1,024 B</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);text-align:center">
+        <div style="font-weight:700;color:var(--text)">MiB</div><div style="color:var(--text3);font-size:11px;margin-top:2px">메비바이트</div><div style="color:var(--text2);font-size:11px">= 1,048,576 B</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);text-align:center">
+        <div style="font-weight:700;color:var(--text)">GiB</div><div style="color:var(--text3);font-size:11px;margin-top:2px">기비바이트</div><div style="color:var(--text2);font-size:11px">= 1,073,741,824 B</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:13px;font-family:var(--mono);text-align:center">
+        <div style="font-weight:700;color:var(--text)">TiB</div><div style="color:var(--text3);font-size:11px;margin-top:2px">테비바이트</div><div style="color:var(--text2);font-size:11px">= 1,099,511,627,776 B</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUIZ ── -->
+<section class="content-section" id="quiz">
+  <div class="section-header">
+    <div class="section-label">06 · 퀴즈</div>
+    <h2 class="section-title">확인 퀴즈</h2>
+    <p class="section-desc">배운 내용을 문제로 확인해보세요.</p>
+  </div>
+  <div class="quiz-card" id="quiz-card">
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="qpf" style="width:12.5%"></div></div>
+    <div class="quiz-meta" id="qmeta">1 / 8</div>
+    <div class="quiz-q" id="qq"></div>
+    <div class="quiz-opts" id="qopts"></div>
+    <div class="quiz-fb" id="qfb"></div>
+    <div class="quiz-nav">
+      <span class="quiz-count" id="qcount"></span>
+      <button class="btn-dark" id="qnext" onclick="nextQ()" disabled>다음 →</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>데이터 용량 단위 완벽 가이드 · 컴퓨터 기초 학습 자료</p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const UNITS = [
+  {
+    key: 'bit', name: '비트', eng: 'bit', sym: 'b', color: '#94a3b8',
+    size: '0 또는 1',
+    byteVal: 0.125,
+    tagline: '컴퓨터 정보의 최소 단위',
+    desc: '비트(bit)는 Binary Digit의 줄임말로, 전기 신호가 켜졌는지(1) 꺼졌는지(0) 단 두 가지 값만 가질 수 있습니다. 컴퓨터 안의 모든 데이터는 결국 이 비트들의 나열입니다.',
+    analogies: [
+      { icon: '💡', title: '전등 스위치 하나', desc: '켜짐(1) 또는 꺼짐(0) — 단 두 가지 상태' },
+      { icon: '🪙', title: '동전 한 개', desc: '앞면(1) 또는 뒷면(0)' },
+    ],
+    fact: '8개의 비트가 모여 1바이트가 됩니다. 사진 한 장은 수천만 개의 비트로 이루어져 있습니다.',
+    examples: []
+  },
+  {
+    key: 'byte', name: '바이트', eng: 'Byte', sym: 'B', color: '#7c3aed',
+    size: '8 bit',
+    byteVal: 1,
+    tagline: '저장의 기본 단위',
+    desc: '8개의 비트가 모인 것이 1바이트입니다. 영문자 한 글자를 저장하는 데 딱 1바이트가 필요합니다. 한글은 글자 하나에 보통 2~3바이트가 필요합니다.',
+    analogies: [
+      { icon: '🔤', title: '영문자 1글자', desc: '"A", "B", "Z" 각각 정확히 1바이트' },
+      { icon: '🔢', title: '숫자 1자리', desc: '"0"부터 "9"까지 숫자 한 자리 = 1바이트' },
+    ],
+    fact: '1바이트는 0~255까지 256가지 값을 표현할 수 있습니다(2⁸ = 256). 예를 들어 대문자 "A"는 65번입니다(ASCII 코드).',
+    examples: []
+  },
+  {
+    key: 'kb', name: '킬로바이트', eng: 'Kilobyte', sym: 'KB', color: '#2563eb',
+    size: '1,024 B',
+    byteVal: 1024,
+    tagline: '텍스트 문서의 세계',
+    desc: '1킬로바이트는 1,024바이트입니다. 텍스트 위주의 간단한 파일들이 이 단위에 해당합니다. 지금은 매우 작은 단위지만, 1980년대 초기 컴퓨터의 메모리는 겨우 수십 KB였습니다.',
+    analogies: [
+      { icon: '📄', title: '짧은 이메일 한 통', desc: '본문 텍스트 약 1~5 KB' },
+      { icon: '📝', title: '한글 원고지 1~2장', desc: '순수 텍스트 약 2~4 KB' },
+      { icon: '⌨️', title: '키보드로 1,000자 입력', desc: '영문 1,000글자 ≈ 1 KB' },
+    ],
+    fact: '초기 팩맨(PAC-MAN, 1980) 게임 전체 코드가 약 24KB였습니다. 지금 스마트폰 앱 아이콘 이미지 한 장보다도 작은 크기입니다.',
+    examples: ['간단한 텍스트 파일: 1~100 KB', '이모지 하나: 약 4 bytes', '저해상도 아이콘: 1~10 KB']
+  },
+  {
+    key: 'mb', name: '메가바이트', eng: 'Megabyte', sym: 'MB', color: '#0891b2',
+    size: '1,024 KB',
+    byteVal: 1024 * 1024,
+    tagline: '음악 한 곡, 사진 한 장',
+    desc: '1메가바이트는 약 100만 바이트(정확히는 1,048,576바이트)입니다. 음악 파일 하나, 사진 한 장, 일반 웹페이지 등이 메가바이트 단위입니다. 2000년대 초반 인터넷 파일 공유의 주역이었던 단위입니다.',
+    analogies: [
+      { icon: '🎵', title: 'MP3 음악 1곡', desc: '약 3~8 MB (4분 기준)' },
+      { icon: '📸', title: '스마트폰 사진 1장', desc: 'JPEG 압축 시 약 2~6 MB' },
+      { icon: '📖', title: '소설책 한 권', desc: '순수 텍스트 약 1~2 MB' },
+      { icon: '🌐', title: '일반 웹페이지 1개', desc: '이미지 포함 약 2~5 MB' },
+    ],
+    fact: '플로피 디스크(1.44MB)가 한 시대를 풍미했던 이유가 있습니다 — 당시 1.44MB면 상당한 양의 데이터였습니다. 지금은 스마트폰 사진 한 장도 안 되는 크기입니다.',
+    examples: ['MP3 음악 1곡: 3~8 MB', '스마트폰 사진(JPEG): 2~6 MB', 'Word 문서(이미지 포함): 1~10 MB', '플로피 디스크: 1.44 MB']
+  },
+  {
+    key: 'gb', name: '기가바이트', eng: 'Gigabyte', sym: 'GB', color: '#059669',
+    size: '1,024 MB',
+    byteVal: 1024 * 1024 * 1024,
+    tagline: '영화 한 편, 앱 수십 개',
+    desc: '1기가바이트는 약 10억 바이트(정확히는 1,073,741,824바이트)입니다. 현재 스마트폰, USB, SD카드 등 우리가 일상에서 가장 많이 접하는 단위입니다.',
+    analogies: [
+      { icon: '🎬', title: '영화 1편 (SD 화질)', desc: '약 700MB ~ 1.5 GB' },
+      { icon: '📱', title: '스마트폰 앱 20~30개', desc: '앱 평균 50~200 MB씩' },
+      { icon: '🎮', title: '인디 게임 1개', desc: '소규모 게임 약 1~5 GB' },
+      { icon: '📷', title: 'RAW 사진 200~300장', desc: 'RAW 파일 1장 ≈ 20~30 MB' },
+    ],
+    fact: '1990년대 말, 최초의 아이팟(2001)은 5GB 용량으로 "1,000곡을 주머니에"라고 광고했습니다. 지금 스마트폰 기본 저장 용량이 128GB인 것과 비교하면 격세지감입니다.',
+    examples: ['스마트폰 기본 저장: 64~512 GB', '영화(Full HD): 4~8 GB', '안드로이드 운영체제: 약 6 GB', 'USB 메모리: 4~256 GB']
+  },
+  {
+    key: 'tb', name: '테라바이트', eng: 'Terabyte', sym: 'TB', color: '#d97706',
+    size: '1,024 GB',
+    byteVal: 1024 ** 4,
+    tagline: '가정용 HDD, 게임 컬렉션',
+    desc: '1테라바이트는 약 1조 바이트입니다. 현재 가정용 하드디스크와 노트북 SSD의 주요 단위이며, 영화를 수백 편 저장할 수 있는 크기입니다.',
+    analogies: [
+      { icon: '🎥', title: '영화 200~250편', desc: 'HD 화질 영화 약 4GB 기준' },
+      { icon: '📚', title: '책 100만 권', desc: '텍스트만 기준 (평균 1MB/권)' },
+      { icon: '🎮', title: '대형 게임 20~30개', desc: '콜 오브 듀티 같은 게임 약 50GB씩' },
+      { icon: '🖥️', title: '일반 가정 HDD 1개', desc: '2024년 기준 가정용 HDD 1~8 TB' },
+    ],
+    fact: '2007년에 처음 출시된 1TB HDD는 당시 가격이 약 400달러였습니다. 지금은 2만 원대에 살 수 있습니다. 불과 17년 만에 일어난 변화입니다.',
+    examples: ['가정용 HDD: 1~20 TB', 'PS5 기본 저장: 825 GB (약 1 TB)', '4K 영화 1편: 50~100 GB', '고화질 블루레이 영화: 25~100 GB']
+  },
+  {
+    key: 'pb', name: '페타바이트', eng: 'Petabyte', sym: 'PB', color: '#dc2626',
+    size: '1,024 TB',
+    byteVal: 1024 ** 5,
+    tagline: '기업 데이터센터의 세계',
+    desc: '1페타바이트는 약 1,000조 바이트로, 개인이 실감하기 어려운 규모입니다. 대형 인터넷 서비스나 국가급 기관에서 다루는 데이터가 이 단위입니다.',
+    analogies: [
+      { icon: '📺', title: '넷플릭스 전체 콘텐츠', desc: '넷플릭스 비디오 라이브러리 수십 PB 규모' },
+      { icon: '🤳', title: '인스타그램 하루 업로드', desc: '매일 약 1~2 PB의 사진·영상 업로드' },
+      { icon: '🏥', title: '대형병원 10년치 의료 영상', desc: 'MRI·CT 등 고해상도 의료 데이터' },
+      { icon: '🔭', title: '허블 우주망원경 20년 데이터', desc: '약 100 PB 수준의 천문 관측 자료' },
+    ],
+    fact: 'SNS 페이스북(Meta)은 매일 약 4 페타바이트의 새로운 데이터를 생성·저장합니다. 사용자가 올리는 사진, 동영상, 댓글이 모두 합쳐진 양입니다.',
+    examples: ['페이스북 일일 데이터 증가량: ~4 PB', '구글 검색 하루 처리 데이터: 수 PB', '대형 데이터센터 1개: 수십~수백 PB']
+  },
+  {
+    key: 'eb', name: '엑사바이트', eng: 'Exabyte', sym: 'EB', color: '#db2777',
+    size: '1,024 PB',
+    byteVal: 1024 ** 6,
+    tagline: '전 세계 인터넷 트래픽',
+    desc: '1엑사바이트는 약 100경 바이트(10¹⁸)입니다. 전 세계 인터넷을 하루 동안 오가는 데이터를 표현할 때 쓰이는 단위로, 국가급·지구급 규모의 데이터입니다.',
+    analogies: [
+      { icon: '🌐', title: '전세계 하루 인터넷 트래픽', desc: '약 2~3 EB의 데이터가 매일 이동' },
+      { icon: '📹', title: '유튜브 1년치 업로드', desc: '1년간 유튜브에 올라오는 영상 합산 약 1 EB' },
+      { icon: '📚', title: '인류 모든 문자 기록', desc: '지금까지 기록된 모든 문자 데이터 수십 EB' },
+      { icon: '🏢', title: '구글 데이터센터 전체', desc: '수십 EB 규모의 저장 인프라로 추정' },
+    ],
+    fact: '2022년 기준 전 세계 데이터 생성량은 연간 약 120 EB(엑사바이트)에 달합니다. 2010년(약 2 EB)과 비교하면 10년 만에 60배 폭증했습니다.',
+    examples: ['전세계 인터넷 월 트래픽: 약 400 EB (2023)', '구글 전체 저장 데이터: 수십 EB 추정', '세계 연간 데이터 생성량: 약 120 EB']
+  },
+  {
+    key: 'zb', name: '제타바이트', eng: 'Zettabyte', sym: 'ZB', color: '#7c3aed',
+    size: '1,024 EB',
+    byteVal: 1024 ** 7,
+    tagline: '전 세계 데이터 총량',
+    desc: '1제타바이트는 10²¹바이트로, 현재 인류가 보유한 전체 디지털 데이터의 총량을 나타낼 때 쓰입니다. 2023년 기준 전 세계 총 데이터가 약 120 ZB에 달합니다.',
+    analogies: [
+      { icon: '🌍', title: '2023년 전세계 총 디지털 데이터', desc: '약 120 ZB — 매년 빠르게 증가 중' },
+      { icon: '🏖️', title: '전세계 해변 모래알의 1/10', desc: '상상하기 어려운 천문학적 숫자' },
+    ],
+    fact: '국제데이터공사(IDC)에 따르면 전 세계 데이터는 2025년에 175 ZB를 넘어설 것으로 예측됩니다. 이는 2010년 대비 약 5,800배 증가한 규모입니다.',
+    examples: ['전세계 총 디지털 데이터(2023): ~120 ZB']
+  },
+  {
+    key: 'yb', name: '요타바이트', eng: 'Yottabyte', sym: 'YB', color: '#0f172a',
+    size: '1,024 ZB',
+    byteVal: 1024 ** 8,
+    tagline: '이론상 최대 공식 단위 (구)',
+    desc: '1요타바이트는 10²⁴바이트로, 2022년 이전까지 국제도량형총회(BIPM)가 공식 지정한 단위 중 최대 크기였습니다. 현재 인류의 기술로는 실제로 저장하는 것조차 불가능한 규모입니다.',
+    analogies: [
+      { icon: '🏖️', title: '전세계 해변 모래알보다 많은 바이트', desc: '지구 모래알 추정 7.5×10¹⁸개보다 100만 배 더 많음' },
+      { icon: '⏳', title: '100만 년 동안 생성되는 데이터', desc: '전 인류가 100만 년간 쉬지 않고 생성해도 채우기 어려운 양' },
+    ],
+    fact: '2022년 BIPM(국제도량형총회)에서 요타바이트보다 더 큰 단위를 새로 지정했습니다: 론나바이트(Ronnabyte, RB = 10²⁷)와 퀘타바이트(Quettabyte, QB = 10³⁰).',
+    examples: ['현재 인류 기술로 저장 불가능', '현 전세계 데이터(120 ZB) ≈ 요타바이트의 1/8,000']
+  },
+];
+
+const TABLE_DATA = [
+  ['비트 (bit)',       'b',  '0.125 B (1/8)',    '켜짐/꺼짐 신호 하나'],
+  ['바이트 (Byte)',    'B',  '1 B',              '영문자 1글자 "A"'],
+  ['킬로바이트 (KB)',  'KB', '1,024 B',          '짧은 이메일 한 통'],
+  ['메가바이트 (MB)',  'MB', '1,048,576 B',      'MP3 음악 1곡 (약 4MB)'],
+  ['기가바이트 (GB)',  'GB', '1,073,741,824 B',  '영화 1편 SD화질'],
+  ['테라바이트 (TB)',  'TB', '약 1조 B',         '가정용 HDD 1개'],
+  ['페타바이트 (PB)', 'PB', '약 1,000조 B',     '넷플릭스 전체 콘텐츠'],
+  ['엑사바이트 (EB)', 'EB', '약 10¹⁸ B',       '전세계 하루 인터넷 트래픽'],
+  ['제타바이트 (ZB)', 'ZB', '약 10²¹ B',       '전세계 디지털 데이터 총량'],
+  ['요타바이트 (YB)', 'YB', '약 10²⁴ B',       '이론상 최대 공식 단위'],
+];
+
+// ═══════════════════════════════════════════
+// BUILD UNIT CARDS
+// ═══════════════════════════════════════════
+function buildUnitCards() {
+  const wrap = document.getElementById('unit-cards');
+  UNITS.forEach((u, idx) => {
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.id = 'uc-' + u.key;
+
+    const scalePercent = Math.min(100, Math.max(2, (idx / (UNITS.length - 1)) * 100));
+
+    const analogiesHTML = u.analogies.map(a =>
+      `<div class="analogy">
+        <div class="analogy-icon">${a.icon}</div>
+        <div class="analogy-text"><strong>${a.title}</strong>${a.desc}</div>
+      </div>`
+    ).join('');
+
+    const examplesHTML = u.examples.length ?
+      `<h4>실생활 예시</h4>
+       <div style="display:flex;flex-direction:column;gap:5px">
+         ${u.examples.map(e => `<div style="font-size:13px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)">${e}</div>`).join('')}
+       </div>` : '';
+
+    card.innerHTML = `
+      <div class="unit-header" onclick="toggleCard('${u.key}')">
+        <div class="unit-accent" style="background:${u.color}"></div>
+        <div class="unit-main">
+          <div class="unit-badge" style="background:${u.color}18;color:${u.color}">${u.sym}</div>
+          <div class="unit-name-wrap">
+            <div class="unit-name">${u.name}</div>
+            <div class="unit-eng">${u.eng} · ${u.tagline}</div>
+          </div>
+          <div class="unit-size">${u.size}</div>
+          <div class="unit-chevron">⌄</div>
+        </div>
+      </div>
+      <div class="unit-body">
+        <div class="unit-visual">
+          <div class="scale-bar-wrap">
+            <div class="scale-bar" style="width:${scalePercent}%;background:${u.color}"></div>
+          </div>
+          <div class="scale-note">전체 단위 중 상대적 위치</div>
+        </div>
+        <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:1rem">${u.desc}</p>
+        <h4>실생활 비유</h4>
+        <div class="analogies">${analogiesHTML}</div>
+        ${examplesHTML}
+        <div class="unit-fact">${u.fact}</div>
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function toggleCard(key) {
+  const card = document.getElementById('uc-' + key);
+  const wasOpen = card.classList.contains('expanded');
+  document.querySelectorAll('.unit-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasOpen) card.classList.add('expanded');
+}
+
+// ═══════════════════════════════════════════
+// BUILD PYRAMID
+// ═══════════════════════════════════════════
+function buildPyramid() {
+  const wrap = document.getElementById('pyramid');
+  const displayUnits = UNITS.filter(u => u.key !== 'bit');
+  const labels = ['1 B', '1 KB', '1 MB', '1 GB', '1 TB', '1 PB', '1 EB', '1 ZB', '1 YB'];
+  const infos  = ['기준','×1,024','×1,048,576','×10⁹','×10¹²','×10¹⁵','×10¹⁸','×10²¹','×10²⁴'];
+
+  displayUnits.forEach((u, i) => {
+    const pct = Math.max(4, Math.round((i + 1) / displayUnits.length * 100));
+    const row = document.createElement('div');
+    row.className = 'pyramid-row';
+    row.innerHTML = `
+      <div class="pyramid-unit" style="color:${u.color}">${u.sym}</div>
+      <div class="pyramid-bar-wrap">
+        <div class="pyramid-bar" style="width:${pct}%;background:${u.color}">
+          <span class="pyramid-bar-label">${labels[i]}</span>
+        </div>
+      </div>
+      <div class="pyramid-info">${infos[i]}</div>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════
+// BUILD TABLE
+// ═══════════════════════════════════════════
+function buildTable() {
+  const tbody = document.getElementById('cmp-tbody');
+  TABLE_DATA.forEach(([name, sym, bytes, ex]) => {
+    const unit = UNITS.find(u => u.sym === sym || (sym === 'b' && u.key === 'bit'));
+    const color = unit ? unit.color : '#888';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td><code style="color:${color};background:${color}18">${sym}</code></td>
+      <td style="font-family:var(--mono);font-size:13px">${bytes}</td>
+      <td>${ex}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════
+const QUESTIONS = [
+  { q:'1바이트(Byte)는 몇 비트(bit)인가요?', opts:['4','8','16','32'], ans:1, ex:'1바이트 = 8비트입니다. 이는 컴퓨터 데이터의 기본 저장 단위입니다.' },
+  { q:'1킬로바이트(KB)는 몇 바이트인가요?', opts:['100 B','1,000 B','1,024 B','2,048 B'], ans:2, ex:'컴퓨터는 2진법을 사용하므로 1KB = 2¹⁰ = 1,024바이트입니다.' },
+  { q:'MP3 음악 파일 1곡의 크기는 보통 어느 단위인가요?', opts:['KB (킬로바이트)','MB (메가바이트)','GB (기가바이트)','TB (테라바이트)'], ans:1, ex:'MP3 음악 1곡은 보통 3~8 MB(메가바이트)입니다.' },
+  { q:'500GB HDD를 구매했는데 운영체제에서 약 465GB로 표시되는 이유는?', opts:['불량품이어서','운영체제 버그','제조사는 1GB=10억 바이트, OS는 1GB=10.7억 바이트로 계산','저장 공간 일부가 시스템용으로 예약'], ans:2, ex:'제조사는 십진법(1GB=10⁹B), OS는 이진법(1GB=2³⁰B≈1.07×10⁹B)으로 계산해 차이가 생깁니다.' },
+  { q:'전 세계 하루 인터넷 트래픽을 표현할 때 사용하는 단위는?', opts:['테라바이트 (TB)','페타바이트 (PB)','엑사바이트 (EB)','제타바이트 (ZB)'], ans:2, ex:'전세계 하루 인터넷 트래픽은 약 2~3 엑사바이트(EB)입니다.' },
+  { q:'다음 중 가장 큰 단위는?', opts:['테라바이트 (TB)','기가바이트 (GB)','페타바이트 (PB)','메가바이트 (MB)'], ans:2, ex:'크기 순서: MB < GB < TB < PB. 페타바이트가 가장 큽니다.' },
+  { q:'IEC 표준에서 이진법 기반의 "정확한 기가바이트"를 나타내는 단위는?', opts:['GiB (기비바이트)','GB (기가바이트)','Gb (기가비트)','GBi'], ans:0, ex:'GiB(기비바이트, Gibibyte)는 정확히 2³⁰ = 1,073,741,824바이트입니다.' },
+  { q:'2022년 BIPM(국제도량형총회)에서 요타바이트(YB) 위에 새로 추가된 단위는?', opts:['킬로요타바이트','슈퍼바이트','론나바이트(RB)와 퀘타바이트(QB)','엑사요타바이트'], ans:2, ex:'2022년 론나바이트(Ronnabyte, 10²⁷)와 퀘타바이트(Quettabyte, 10³⁰)가 공식 추가되었습니다.' },
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function renderQ() {
+  const q = QUESTIONS[qIdx];
+  document.getElementById('qmeta').textContent = `${qIdx+1} / ${QUESTIONS.length}`;
+  document.getElementById('qpf').style.width = ((qIdx+1)/QUESTIONS.length*100)+'%';
+  document.getElementById('qq').textContent = q.q;
+  document.getElementById('qfb').textContent = '';
+  document.getElementById('qnext').disabled = true;
+  document.getElementById('qcount').textContent = `정답 ${score}개`;
+  answered = false;
+
+  const opts = document.getElementById('qopts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      if (answered) return;
+      answered = true;
+      opts.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+      if (i === q.ans) {
+        btn.classList.add('correct'); score++;
+        document.getElementById('qfb').textContent = '✓ 정답! ' + q.ex;
+      } else {
+        btn.classList.add('wrong');
+        opts.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+        document.getElementById('qfb').textContent = '✗ 오답. ' + q.ex;
+      }
+      document.getElementById('qnext').disabled = false;
+      document.getElementById('qcount').textContent = `정답 ${score}개`;
+      document.getElementById('qnext').textContent = qIdx === QUESTIONS.length-1 ? '결과 보기 🎉' : '다음 →';
+    };
+    opts.appendChild(btn);
+  });
+}
+
+function nextQ() {
+  if (qIdx < QUESTIONS.length - 1) {
+    qIdx++; renderQ();
+  } else {
+    const pct = Math.round(score/QUESTIONS.length*100);
+    const msg = pct===100?'🏆 만점!':pct>=75?'👏 훌륭해요!':pct>=50?'👍 잘 하셨어요!':'📚 복습이 필요해요';
+    document.getElementById('quiz-card').innerHTML = `
+      <div class="quiz-result">
+        <div class="result-score">${score}<span style="font-size:28px;color:var(--text3)">/${QUESTIONS.length}</span></div>
+        <div class="result-msg">${msg}</div>
+        <div class="result-sub">정답률 ${pct}% · 8문제 중 ${score}개 정답</div>
+        <button class="btn-dark" onclick="resetQuiz()">다시 풀기</button>
+      </div>`;
+  }
+}
+
+function resetQuiz() {
+  qIdx = 0; score = 0;
+  document.getElementById('quiz-card').innerHTML = `
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="qpf" style="width:12.5%"></div></div>
+    <div class="quiz-meta" id="qmeta">1 / 8</div>
+    <div class="quiz-q" id="qq"></div>
+    <div class="quiz-opts" id="qopts"></div>
+    <div class="quiz-fb" id="qfb"></div>
+    <div class="quiz-nav">
+      <span class="quiz-count" id="qcount"></span>
+      <button class="btn-dark" id="qnext" onclick="nextQ()" disabled>다음 →</button>
+    </div>`;
+  renderQ();
+}
+
+// ═══════════════════════════════════════════
+// NAV SCROLL
+// ═══════════════════════════════════════════
+function scrollTo(selector) {
+  const el = document.querySelector(selector);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+buildUnitCards();
+buildPyramid();
+buildTable();
+renderQ();
+
+// Auto-open first card
+toggleCard('bit');
+</script>
+</body>
+</html>
